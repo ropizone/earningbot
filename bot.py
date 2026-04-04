@@ -9,7 +9,7 @@ from telegram.ext import (
     MessageHandler, filters, ContextTypes, ConversationHandler
 )
 
-BOT_TOKEN = "PASTE_YOUR_NEW_TOKEN_HERE"
+BOT_TOKEN = "8663479623:AAEmBgQ8cxNymOqxSflOxjypnhFxOd_u8NE"
 ADMIN_IDS = [8338072770]
 ADMIN_PASS = "2010"
 MIN_WITHDRAW = 1000
