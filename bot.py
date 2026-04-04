@@ -9,7 +9,7 @@ from telegram.ext import (
     MessageHandler, filters, ContextTypes, ConversationHandler
 )
 
-BOT_TOKEN = os.environ.get("8663479623:AAEmBgQ8cxNymOqxSflOxjypnhFxOd_u8NE")
+BOT_TOKEN = "PASTE_YOUR_NEW_TOKEN_HERE"
 ADMIN_IDS = [8338072770]
 ADMIN_PASS = "2010"
 MIN_WITHDRAW = 1000
@@ -921,6 +921,8 @@ async def text_router(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         )
 
 def main():
+    if not BOT_TOKEN:
+        raise ValueError("BOT_TOKEN environment variable is not set!")
     init_db()
     app = Application.builder().token(BOT_TOKEN).build()
 
