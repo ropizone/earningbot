@@ -9,7 +9,7 @@ from telegram.ext import (
     MessageHandler, filters, ContextTypes, ConversationHandler
 )
 
-Bos.environ.get("8663479623:AAEmBgQ8cxNymOqxSflOxjypnhFxOd_u8NE")
+BOT_TOKEN = os.environ.get("8663479623:AAEmBgQ8cxNymOqxSflOxjypnhFxOd_u8NE")
 ADMIN_IDS = [8338072770]
 ADMIN_PASS = "2010"
 MIN_WITHDRAW = 1000
