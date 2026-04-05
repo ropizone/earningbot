@@ -1,6 +1,7 @@
 import sqlite3
 import logging
 import random
+import asyncio
 from datetime import datetime
 from groq import Groq
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -227,7 +228,8 @@ async def ask_shekha(user_message, user_name, status_fn=None):
     for attempt in range(total):
         model = GROQ_MODELS[current_model_ix]
         try:
-            resp = groq_client.chat.completions.create(
+            resp = await asyncio.to_thread(
+                groq_client.chat.completions.create,
                 model=model,
                 messages=[
                     {"role": "system", "content": SHEKHA_PROMPT},
