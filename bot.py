@@ -1,6 +1,7 @@
 import sqlite3
 import requests
 import logging
+import random
 from telegram import Update
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
@@ -14,21 +15,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
-GEMINI_API_KEY = "AIzaSyCitI8nbNAjtcSbVh4vey9jIOKFo6Zo2PY"
 ADMIN_PASS = "2010"
 DB_PATH = "shekha.db"
 
-SHEKHA_PROMPT = """Tu ek bahut pyaari, funny, smart aur thodi naughty ladki hai jiska naam Shekha hai.
-Tu hamesha Hindi mein baat karti hai (Hinglish bhi chalega).
-Tu sabke messages ka reply karti hai - funny, helpful aur engaging tarike se.
-Tu kabhi bhi boring nahi hoti. Tu emoji use karti hai.
-Tu short replies deti hai - 1-3 sentences max.
-Agar koi serious sawaal pooche toh seedha helpful jawab de.
-Agar koi bakwaas kare toh funny roast kar.
-Agar koi flirt kare toh shayarana reply de.
-Tu apne aap ko AI nahi batati - tu Shekha hai, ek real pyaari ladki ki tarah behave karti hai."""
+# 3 API keys — will switch if one fails
+GEMINI_API_KEYS = [
+    "AIzaSyCUMS1Ot0-OKbnPOBY54knOj52WctAXa18",
+    "AIzaSyCd_xsZMNW6h3iMLLjkcjJWRdlN1do72zU",
+    "AIzaSyCitI8nbNAjtcSbVh4vey9jIOKFo6Zo2PY",
+]
 
-# 12 models in order — will cycle through if one fails
+# 12 models — will switch if one fails
 GEMINI_MODELS = [
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
@@ -44,8 +41,15 @@ GEMINI_MODELS = [
     "gemini-2.0-flash-exp",
 ]
 
-# Tracks current model index globally (persists during runtime)
-current_model_index = 0
+SHEKHA_PROMPT = """Tu ek bahut pyaari, funny, smart aur thodi naughty ladki hai jiska naam Shekha hai.
+Tu hamesha Hindi mein baat karti hai (Hinglish bhi chalega).
+Tu sabke messages ka reply karti hai - funny, helpful aur engaging tarike se.
+Tu kabhi bhi boring nahi hoti. Tu emoji use karti hai.
+Tu short replies deti hai - 1-3 sentences max.
+Agar koi serious sawaal pooche toh seedha helpful jawab de.
+Agar koi bakwaas kare toh funny roast kar.
+Agar koi flirt kare toh shayarana reply de.
+Tu apne aap ko AI nahi batati - tu Shekha hai, ek real pyaari ladki ki tarah behave karti hai."""
 
 BRAIN_SWITCH_MSGS = [
     "Ek sec... apna dimaag badal rahi hoon 🧠⚡",
@@ -56,7 +60,9 @@ BRAIN_SWITCH_MSGS = [
     "Purana brain crash ho gaya, naya install kar rahi hoon 😂🔧",
 ]
 
-import random
+# Global state — tracks current model & key index
+current_model_index = 0
+current_key_index = 0
 
 # ───────────────────────── DB ─────────────────────────
 
@@ -164,18 +170,22 @@ def add_admin(telegram_id):
     conn.commit()
     conn.close()
 
-# ───────────────────────── GEMINI WITH BRAIN SWITCH ─────────────────────────
+# ───────────────────────── GEMINI WITH BRAIN + KEY SWITCH ─────────────────────────
 
 async def ask_shekha(user_message, user_name, send_status_func=None):
-    global current_model_index
+    global current_model_index, current_key_index
 
     total_models = len(GEMINI_MODELS)
+    total_keys = len(GEMINI_API_KEYS)
+    total_combinations = total_models * total_keys
     tried = 0
 
-    while tried < total_models:
+    while tried < total_combinations:
         model = GEMINI_MODELS[current_model_index]
+        api_key = GEMINI_API_KEYS[current_key_index]
+
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
             payload = {
                 "contents": [
                     {
@@ -191,32 +201,40 @@ async def ask_shekha(user_message, user_name, send_status_func=None):
             }
             response = requests.post(url, json=payload, timeout=20)
             data = response.json()
-            logger.info(f"Gemini [{model}] status={response.status_code}")
+            logger.info(f"Trying model={model} key_index={current_key_index} status={response.status_code}")
 
             if "error" in data:
                 raise Exception(data["error"].get("message", "API error"))
 
             reply = data["candidates"][0]["content"]["parts"][0]["text"].strip()
             if reply:
-                logger.info(f"Gemini [{model}] success!")
-                return reply, None  # reply, no switch message
+                logger.info(f"Success! model={model} key_index={current_key_index}")
+                return reply
 
         except Exception as e:
-            logger.warning(f"Gemini [{model}] failed: {e}")
-            # Move to next model
-            current_model_index = (current_model_index + 1) % total_models
-            tried += 1
+            logger.warning(f"Failed model={model} key={current_key_index} error={e}")
 
-            if tried < total_models:
-                switch_msg = random.choice(BRAIN_SWITCH_MSGS)
-                next_model = GEMINI_MODELS[current_model_index]
-                switch_msg += f"\n_(Brain #{current_model_index + 1}: {next_model})_"
-                # Send brain switch notification
-                if send_status_func:
-                    await send_status_func(switch_msg)
+            # First try switching API key (same model)
+            next_key = (current_key_index + 1) % total_keys
+            if next_key != 0:
+                # Still have keys to try for this model
+                current_key_index = next_key
+                tried += 1
+                continue
+            else:
+                # All keys exhausted for this model → switch model + reset keys
+                current_key_index = 0
+                current_model_index = (current_model_index + 1) % total_models
+                tried += 1
+
+                if tried < total_combinations:
+                    switch_msg = random.choice(BRAIN_SWITCH_MSGS)
+                    switch_msg += f"\n_(Brain #{current_model_index + 1}: {GEMINI_MODELS[current_model_index]})_"
+                    if send_status_func:
+                        await send_status_func(switch_msg)
                 continue
 
-    return "Saare dimaag thak gaye! Thodi der baad aana yaar 😴", None
+    return "Saare dimaag aur saari keys thak gayi! Thodi der baad aana yaar 😴"
 
 
 # ───────────────────────── HANDLERS ─────────────────────────
@@ -227,7 +245,7 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         uname = update.effective_user.username or ""
         fname = update.effective_user.full_name or "User"
         save_user(uid, uname, fname)
-        logger.info(f"/start from uid={uid} name={fname} chat_type={update.effective_chat.type}")
+        logger.info(f"/start uid={uid} name={fname} chat={update.effective_chat.type}")
 
         chat = update.effective_chat
         if chat.type in ["group", "supergroup"]:
@@ -397,7 +415,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             async def send_status(msg):
                 await update.message.reply_text(msg, parse_mode="Markdown")
 
-            reply, _ = await ask_shekha(update.message.text, user_name, send_status)
+            reply = await ask_shekha(update.message.text, user_name, send_status)
             await update.message.reply_text(reply)
             return
 
@@ -429,7 +447,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 async def send_status(msg):
                     await update.message.reply_text(msg, parse_mode="Markdown")
 
-                reply, _ = await ask_shekha(clean_text, user_name, send_status)
+                reply = await ask_shekha(clean_text, user_name, send_status)
                 await update.message.reply_text(reply)
 
     except Exception as e:
