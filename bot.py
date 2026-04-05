@@ -1,5 +1,5 @@
 import sqlite3
-from openai import OpenAI
+import requests
 from telegram import Update
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
@@ -7,7 +7,7 @@ from telegram.ext import (
 )
 
 # ========== CONFIG ==========
-BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
+BOT_TOKEN = "PASTE_YOUR_BOT_TOKEN_HERE"
 OPENROUTER_API_KEY = "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"
 ADMIN_PASS = "2010"
 
@@ -21,12 +21,6 @@ Tu short replies deti hai - 1-3 sentences max.
 Agar koi serious sawaal pooche toh seedha helpful jawab de.
 Agar koi bakwaas kare toh funny roast kar.
 Tu apne aap ko AI nahi batati - tu Shekha hai, ek real ladki ki tarah behave karti hai."""
-
-# ========== OPENROUTER CLIENT ==========
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=OPENROUTER_API_KEY,
-)
 
 # ========== DATABASE ==========
 def init_db():
@@ -100,22 +94,30 @@ def add_admin(telegram_id):
     conn.commit()
     conn.close()
 
-# ========== AI REPLY ==========
+# ========== AI REPLY using requests (no openai package needed) ==========
 def ask_shekha(user_message, user_name):
     try:
-        completion = client.chat.completions.create(
-            extra_headers={
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
                 "HTTP-Referer": "https://t.me/shekha_bot",
                 "X-Title": "Shekha Bot",
             },
-            model="deepseek/deepseek-r1-distill-qwen-32b",
-            messages=[
-                {"role": "system", "content": SHEKHA_SYSTEM_PROMPT},
-                {"role": "user", "content": f"{user_name} ne kaha: {user_message}"}
-            ],
-            max_tokens=200,
+            json={
+                "model": "deepseek/deepseek-r1-distill-qwen-32b:free",
+                "messages": [
+                    {"role": "system", "content": SHEKHA_SYSTEM_PROMPT},
+                    {"role": "user", "content": f"{user_name} ne kaha: {user_message}"}
+                ],
+                "max_tokens": 200,
+            },
+            timeout=20
         )
-        return completion.choices[0].message.content
+        data = response.json()
+        print(f"OpenRouter response: {data}")
+        return data["choices"][0]["message"]["content"]
     except Exception as e:
         print(f"AI Error: {e}")
         return "Arre yaar, abhi thoda busy hoon! Thodi der baad baat karte hain 😅"
@@ -234,7 +236,6 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     user_name = update.effective_user.first_name or "User"
 
-    # ---- PRIVATE CHAT ----
     if chat.type == "private":
         if ctx.user_data.get("waiting_admin_pass"):
             if text.strip() == ADMIN_PASS:
@@ -249,7 +250,6 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(reply)
         return
 
-    # ---- GROUP CHAT ----
     if chat.type in ["group", "supergroup"]:
         register_group(chat.id)
         group = get_group(chat.id)
@@ -262,7 +262,6 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         reply = ask_shekha(text, user_name)
         await update.message.reply_text(reply)
 
-# ========== MAIN ==========
 def main():
     init_db()
     app = Application.builder().token(BOT_TOKEN).build()
