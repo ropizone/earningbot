@@ -4,7 +4,7 @@ import random
 import asyncio
 from datetime import datetime
 from groq import Groq
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
     CallbackQueryHandler, filters, ContextTypes
@@ -393,6 +393,10 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 except: pass
 
         save_user(uid, uname, fname, referred_by)
+
+        # Clear any old reply keyboard
+        await update.message.reply_text(".", reply_markup=ReplyKeyboardRemove())
+        await update.message.delete()
 
         if chat.type in ["group", "supergroup"]:
             register_group(chat.id)
@@ -971,8 +975,12 @@ def main():
     app.add_handler(CommandHandler("broadcast",   broadcast_cmd))
     app.add_handler(CommandHandler("forward",     forward_cmd))
     app.add_handler(CommandHandler("stats",       stats_cmd))
+    async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+        logger.error(f"Exception while handling update: {context.error}", exc_info=context.error)
+
+    app.add_error_handler(error_handler)
     app.add_handler(CallbackQueryHandler(on_button))
-    app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, handle_message))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     logger.info("🤖 Shekha Bot is running...")
     app.run_polling()
