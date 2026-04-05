@@ -1,4 +1,3 @@
-import os
 import sqlite3
 import requests
 from telegram import Update
@@ -8,10 +7,9 @@ from telegram.ext import (
 )
 
 # ========== CONFIG ==========
-BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
+BOT_TOKEN = "PASTE_NEW_TOKEN_HERE"
 DEEPSEEK_API_KEY = "sk-d38fc497c0164fc598c28629c573a719"
 ADMIN_PASS = "2010"
-ADMIN_IDS = []  # Will be filled when admin logs in
 
 DB_PATH = "shekha.db"
 
@@ -22,7 +20,7 @@ Tu kabhi bhi boring nahi hoti.
 Tu short replies deti hai - 1-3 sentences max.
 Agar koi serious sawaal pooche toh seedha helpful jawab de.
 Agar koi bakwaas kare toh funny roast kar.
-Tu apne aap ko AI nahi batati - tu Shekha hai, ek real group member ki tarah behave karti hai."""
+Tu apne aap ko AI nahi batati - tu Shekha hai, ek real ladki ki tarah behave karti hai."""
 
 # ========== DATABASE ==========
 def init_db():
@@ -81,7 +79,7 @@ def increment_msg_count(chat_id):
         conn2.execute("UPDATE groups SET message_count=0 WHERE chat_id=?", (chat_id,))
         conn2.commit()
         conn2.close()
-        return row[2]  # Return promo text to send
+        return row[2]
     return None
 
 def is_admin(telegram_id):
@@ -96,7 +94,7 @@ def add_admin(telegram_id):
     conn.commit()
     conn.close()
 
-# ========== DEEPSEEK API ==========
+# ========== DEEPSEEK ==========
 def ask_deepseek(user_message, user_name):
     url = "https://api.deepseek.com/chat/completions"
     headers = {
@@ -116,7 +114,7 @@ def ask_deepseek(user_message, user_name):
         response = requests.post(url, headers=headers, json=payload, timeout=15)
         data = response.json()
         return data["choices"][0]["message"]["content"]
-    except Exception as e:
+    except:
         return "Arre yaar, abhi thoda busy hoon! Thodi der baad baat karte hain 😅"
 
 # ========== HANDLERS ==========
@@ -130,9 +128,9 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         )
     else:
         await update.message.reply_text(
-            "Heyy! Main Shekha hoon! 😊\n"
-            "Mujhe kisi group mein add karo aur main wahan sab se baat karungi! 🎉\n\n"
-            "Admin login ke liye /admin bhejo."
+            "Heyy! 😊 Main Shekha hoon!\n\n"
+            "Mujhse kuch bhi poochho, main help karungi! 🎉\n"
+            "Admin ho toh /admin bhejo."
         )
 
 async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -140,23 +138,19 @@ async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if is_admin(uid):
         await show_admin_help(update)
         return
-    await update.message.reply_text(
-        "🔐 Admin password bhejo:"
-    )
+    await update.message.reply_text("🔐 Admin password bhejo:")
     ctx.user_data["waiting_admin_pass"] = True
 
 async def show_admin_help(update):
     await update.message.reply_text(
         "✅ *Admin Panel - Shekha Bot*\n\n"
-        "📋 *Commands:*\n\n"
-        "▶️ `/on <group_id>` — Group mein Shekha on karo\n"
-        "⏹ `/off <group_id>` — Group mein Shekha off karo\n"
-        "📢 `/setpromo <group_id> | <interval> | <text>` — Promo ad set karo\n"
+        "▶️ `/on <group_id>` — Shekha ON karo\n"
+        "⏹ `/off <group_id>` — Shekha OFF karo\n"
+        "📢 `/setpromo <group_id> | <interval> | <text>` — Promo set karo\n"
         "🗑 `/removepromo <group_id>` — Promo hatao\n"
         "📊 `/groups` — Saare groups dekho\n\n"
-        "💡 *Example:*\n"
-        "`/setpromo -1001234567890 | 10 | Hamara channel join karo!`\n"
-        "_(Har 10 messages ke baad promo send hoga)_",
+        "💡 Example:\n"
+        "`/setpromo -1001234567890 | 10 | Join karo!`",
         parse_mode="Markdown"
     )
 
@@ -169,7 +163,7 @@ async def on_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     chat_id = int(ctx.args[0])
     register_group(chat_id)
     set_group_active(chat_id, 1)
-    await update.message.reply_text(f"✅ Shekha group `{chat_id}` mein ON kar di!", parse_mode="Markdown")
+    await update.message.reply_text("✅ Shekha ON!")
 
 async def off_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id):
@@ -179,7 +173,7 @@ async def off_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         return
     chat_id = int(ctx.args[0])
     set_group_active(chat_id, 0)
-    await update.message.reply_text(f"⏹ Shekha group `{chat_id}` mein OFF kar di!", parse_mode="Markdown")
+    await update.message.reply_text("⏹ Shekha OFF!")
 
 async def setpromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id):
@@ -192,15 +186,12 @@ async def setpromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         promo_text = parts[2].strip()
         set_promo(chat_id, promo_text, interval)
         await update.message.reply_text(
-            f"✅ Promo set ho gaya!\n"
-            f"Group: `{chat_id}`\n"
-            f"Har *{interval} messages* ke baad send hoga:\n"
-            f"_{promo_text}_",
+            f"✅ Promo set!\nHar *{interval} messages* baad:\n_{promo_text}_",
             parse_mode="Markdown"
         )
     except:
         await update.message.reply_text(
-            "❌ Format galat hai!\nSahi format:\n`/setpromo <group_id> | <interval> | <promo text>`",
+            "❌ Format:\n`/setpromo <group_id> | <interval> | <text>`",
             parse_mode="Markdown"
         )
 
@@ -212,7 +203,7 @@ async def removepromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         return
     chat_id = int(ctx.args[0])
     set_promo(chat_id, None, 0)
-    await update.message.reply_text(f"🗑 Group `{chat_id}` ka promo hata diya!", parse_mode="Markdown")
+    await update.message.reply_text("🗑 Promo hata diya!")
 
 async def groups_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id):
@@ -227,7 +218,7 @@ async def groups_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     text = "📊 *All Groups:*\n\n"
     for g in groups:
         status = "✅ ON" if g["is_active"] else "⏹ OFF"
-        promo = f"📢 Promo: every {g['promo_interval']} msgs" if g["promo_interval"] else "No promo"
+        promo = f"Promo: har {g['promo_interval']} msgs" if g["promo_interval"] else "No promo"
         text += f"`{g['chat_id']}` — {status} — {promo}\n"
     await update.message.reply_text(text, parse_mode="Markdown")
 
@@ -240,49 +231,32 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
     user_name = update.effective_user.first_name or "User"
 
-    # Admin password check in private
+    # ---- PRIVATE CHAT ----
     if chat.type == "private":
         if ctx.user_data.get("waiting_admin_pass"):
             if text.strip() == ADMIN_PASS:
                 add_admin(uid)
                 ctx.user_data["waiting_admin_pass"] = False
-                await update.message.reply_text("✅ Admin login ho gaya! /admin bhejo commands ke liye.")
+                await update.message.reply_text("✅ Admin login ho gaya! /admin bhejo.")
             else:
                 ctx.user_data["waiting_admin_pass"] = False
                 await update.message.reply_text("❌ Wrong password!")
             return
-
-        # Private chat - reply normally
+        # Reply to everything in private
         reply = ask_deepseek(text, user_name)
         await update.message.reply_text(reply)
         return
 
-    # Group chat
+    # ---- GROUP CHAT ----
     if chat.type in ["group", "supergroup"]:
         register_group(chat.id)
         group = get_group(chat.id)
-
         if not group or not group["is_active"]:
             return
-
-        # Check promo
         promo = increment_msg_count(chat.id)
         if promo:
             await update.message.reply_text(f"📢 {promo}")
             return
-
-        # Only reply if bot is mentioned or message is a reply to bot
-        bot_username = (await ctx.bot.get_me()).username
-        is_mentioned = f"@{bot_username}" in text
-        is_reply_to_bot = (
-            update.message.reply_to_message and
-            update.message.reply_to_message.from_user and
-            update.message.reply_to_message.from_user.username == bot_username
-        )
-
-        # Reply to every message (remove the condition below to reply to all)
-        # If you want reply to ALL messages, keep this as is
-        # If you want only when mentioned, wrap in: if is_mentioned or is_reply_to_bot:
         reply = ask_deepseek(text, user_name)
         await update.message.reply_text(reply)
 
@@ -290,7 +264,6 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 def main():
     init_db()
     app = Application.builder().token(BOT_TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("admin", admin_cmd))
     app.add_handler(CommandHandler("on", on_cmd))
@@ -299,7 +272,6 @@ def main():
     app.add_handler(CommandHandler("removepromo", removepromo_cmd))
     app.add_handler(CommandHandler("groups", groups_cmd))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
     print("🤖 Shekha Bot started!")
     app.run_polling(drop_pending_updates=True)
 
