@@ -6,7 +6,7 @@ from telegram.ext import (
     filters, ContextTypes
 )
 
-BOT_TOKEN = "PASTE_YOUR_BOT_TOKEN_HERE"
+BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
 OPENROUTER_API_KEY = "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"
 ADMIN_PASS = "2010"
 DB_PATH = "shekha.db"
