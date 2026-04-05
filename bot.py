@@ -7,7 +7,7 @@ from telegram.ext import (
 )
 
 # ========== CONFIG ==========
-BOT_TOKEN = "PASTE_NEW_TOKEN_HERE"
+BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
 DEEPSEEK_API_KEY = "sk-d38fc497c0164fc598c28629c573a719"
 ADMIN_PASS = "2010"
 
