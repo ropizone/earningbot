@@ -97,7 +97,7 @@ def ask_shekha(user_message, user_name):
                 "X-Title": "Shekha Bot",
             },
             json={
-                "model": "deepseek/deepseek-chat-v3-0324:free",
+                "model": "meta-llama/llama-3.3-70b-instruct:free",
                 "messages": [
                     {"role": "system", "content": SHEKHA_SYSTEM_PROMPT},
                     {"role": "user", "content": f"{user_name} ne kaha: {user_message}"}
