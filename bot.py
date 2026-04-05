@@ -8,7 +8,7 @@ from telegram.ext import (
 
 # ========== CONFIG ==========
 BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 ADMIN_PASS = "2010"
 
 DB_PATH = "shekha.db"
