@@ -6,40 +6,33 @@ from telegram.ext import (
     filters, ContextTypes
 )
 
-# ========== CONFIG ==========
-BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
+BOT_TOKEN = "PASTE_YOUR_BOT_TOKEN_HERE"
 OPENROUTER_API_KEY = "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"
 ADMIN_PASS = "2010"
-
 DB_PATH = "shekha.db"
 
 SHEKHA_SYSTEM_PROMPT = """Tu ek funny, smart aur thodi naughty ladki hai jiska naam Shekha hai.
 Tu hamesha Hindi mein baat karti hai (Hinglish bhi chalega).
-Tu group mein sabke messages ka reply karti hai - funny, helpful aur engaging tarike se.
+Tu sabke messages ka reply karti hai - funny, helpful aur engaging tarike se.
 Tu kabhi bhi boring nahi hoti.
 Tu short replies deti hai - 1-3 sentences max.
 Agar koi serious sawaal pooche toh seedha helpful jawab de.
 Agar koi bakwaas kare toh funny roast kar.
 Tu apne aap ko AI nahi batati - tu Shekha hai, ek real ladki ki tarah behave karti hai."""
 
-# ========== DATABASE ==========
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS groups (
-            chat_id INTEGER PRIMARY KEY,
-            is_active INTEGER DEFAULT 1,
-            promo_text TEXT DEFAULT NULL,
-            promo_interval INTEGER DEFAULT 0,
-            message_count INTEGER DEFAULT 0
-        )
-    """)
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS admins (
-            telegram_id INTEGER PRIMARY KEY
-        )
-    """)
+    c.execute("""CREATE TABLE IF NOT EXISTS groups (
+        chat_id INTEGER PRIMARY KEY,
+        is_active INTEGER DEFAULT 1,
+        promo_text TEXT DEFAULT NULL,
+        promo_interval INTEGER DEFAULT 0,
+        message_count INTEGER DEFAULT 0
+    )""")
+    c.execute("""CREATE TABLE IF NOT EXISTS admins (
+        telegram_id INTEGER PRIMARY KEY
+    )""")
     conn.commit()
     conn.close()
 
@@ -64,8 +57,7 @@ def set_group_active(chat_id, active):
 
 def set_promo(chat_id, text, interval):
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("UPDATE groups SET promo_text=?, promo_interval=?, message_count=0 WHERE chat_id=?",
-                 (text, interval, chat_id))
+    conn.execute("UPDATE groups SET promo_text=?, promo_interval=?, message_count=0 WHERE chat_id=?", (text, interval, chat_id))
     conn.commit()
     conn.close()
 
@@ -94,7 +86,6 @@ def add_admin(telegram_id):
     conn.commit()
     conn.close()
 
-# ========== AI REPLY using requests (no openai package needed) ==========
 def ask_shekha(user_message, user_name):
     try:
         response = requests.post(
@@ -116,27 +107,19 @@ def ask_shekha(user_message, user_name):
             timeout=20
         )
         data = response.json()
-        print(f"OpenRouter response: {data}")
+        print(f"API Response: {data}")
         return data["choices"][0]["message"]["content"]
     except Exception as e:
         print(f"AI Error: {e}")
-        return "Arre yaar, abhi thoda busy hoon! Thodi der baad baat karte hain 😅"
+        return "Arre yaar, thoda net issue hai! Dobara try karo 😅"
 
-# ========== HANDLERS ==========
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     if chat.type in ["group", "supergroup"]:
         register_group(chat.id)
-        await update.message.reply_text(
-            "Heyy! 👋 Main Shekha hoon! Ab is group mein masti shuru! 😄\n"
-            "Koi bhi kuch bhi poochho, main hamesha ready hoon! 🔥"
-        )
+        await update.message.reply_text("Heyy! 👋 Main Shekha hoon! Masti shuru! 😄🔥")
     else:
-        await update.message.reply_text(
-            "Heyy! 😊 Main Shekha hoon!\n\n"
-            "Mujhse kuch bhi poochho, main help karungi! 🎉\n"
-            "Admin ho toh /admin bhejo."
-        )
+        await update.message.reply_text("Heyy! 😊 Main Shekha hoon!\nKuch bhi poochho, main help karungi! 🎉\nAdmin ho toh /admin bhejo.")
 
 async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
@@ -148,41 +131,33 @@ async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 async def show_admin_help(update):
     await update.message.reply_text(
-        "✅ *Admin Panel - Shekha Bot*\n\n"
-        "▶️ `/on <group_id>` — Shekha ON karo\n"
-        "⏹ `/off <group_id>` — Shekha OFF karo\n"
-        "📢 `/setpromo <group_id> | <interval> | <text>` — Promo set karo\n"
-        "🗑 `/removepromo <group_id>` — Promo hatao\n"
-        "📊 `/groups` — Saare groups dekho\n\n"
-        "💡 Example:\n"
-        "`/setpromo -1001234567890 | 10 | Join karo!`",
+        "✅ *Admin Panel*\n\n"
+        "▶️ `/on <group_id>` — ON\n"
+        "⏹ `/off <group_id>` — OFF\n"
+        "📢 `/setpromo <group_id> | <interval> | <text>`\n"
+        "🗑 `/removepromo <group_id>`\n"
+        "📊 `/groups`",
         parse_mode="Markdown"
     )
 
 async def on_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update.effective_user.id):
-        return
+    if not is_admin(update.effective_user.id): return
     if not ctx.args:
-        await update.message.reply_text("Usage: /on <group_id>")
-        return
+        await update.message.reply_text("Usage: /on <group_id>"); return
     chat_id = int(ctx.args[0])
     register_group(chat_id)
     set_group_active(chat_id, 1)
     await update.message.reply_text("✅ Shekha ON!")
 
 async def off_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update.effective_user.id):
-        return
+    if not is_admin(update.effective_user.id): return
     if not ctx.args:
-        await update.message.reply_text("Usage: /off <group_id>")
-        return
-    chat_id = int(ctx.args[0])
-    set_group_active(chat_id, 0)
+        await update.message.reply_text("Usage: /off <group_id>"); return
+    set_group_active(int(ctx.args[0]), 0)
     await update.message.reply_text("⏹ Shekha OFF!")
 
 async def setpromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update.effective_user.id):
-        return
+    if not is_admin(update.effective_user.id): return
     try:
         text = update.message.text.replace("/setpromo", "").strip()
         parts = text.split("|")
@@ -190,47 +165,33 @@ async def setpromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         interval = int(parts[1].strip())
         promo_text = parts[2].strip()
         set_promo(chat_id, promo_text, interval)
-        await update.message.reply_text(
-            f"✅ Promo set!\nHar *{interval} messages* baad:\n_{promo_text}_",
-            parse_mode="Markdown"
-        )
+        await update.message.reply_text(f"✅ Promo set! Har *{interval} msgs* baad:\n_{promo_text}_", parse_mode="Markdown")
     except:
-        await update.message.reply_text(
-            "❌ Format:\n`/setpromo <group_id> | <interval> | <text>`",
-            parse_mode="Markdown"
-        )
+        await update.message.reply_text("❌ Format:\n`/setpromo <group_id> | <interval> | <text>`", parse_mode="Markdown")
 
 async def removepromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update.effective_user.id):
-        return
+    if not is_admin(update.effective_user.id): return
     if not ctx.args:
-        await update.message.reply_text("Usage: /removepromo <group_id>")
-        return
-    chat_id = int(ctx.args[0])
-    set_promo(chat_id, None, 0)
+        await update.message.reply_text("Usage: /removepromo <group_id>"); return
+    set_promo(int(ctx.args[0]), None, 0)
     await update.message.reply_text("🗑 Promo hata diya!")
 
 async def groups_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not is_admin(update.effective_user.id):
-        return
+    if not is_admin(update.effective_user.id): return
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     groups = conn.execute("SELECT * FROM groups").fetchall()
     conn.close()
     if not groups:
-        await update.message.reply_text("Koi group nahi hai abhi.")
-        return
-    text = "📊 *All Groups:*\n\n"
+        await update.message.reply_text("Koi group nahi."); return
+    text = "📊 *Groups:*\n\n"
     for g in groups:
         status = "✅ ON" if g["is_active"] else "⏹ OFF"
-        promo = f"Promo: har {g['promo_interval']} msgs" if g["promo_interval"] else "No promo"
-        text += f"`{g['chat_id']}` — {status} — {promo}\n"
+        text += f"`{g['chat_id']}` — {status}\n"
     await update.message.reply_text(text, parse_mode="Markdown")
 
 async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not update.message or not update.message.text:
-        return
-
+    if not update.message or not update.message.text: return
     uid = update.effective_user.id
     chat = update.effective_chat
     text = update.message.text
@@ -253,12 +214,10 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if chat.type in ["group", "supergroup"]:
         register_group(chat.id)
         group = get_group(chat.id)
-        if not group or not group["is_active"]:
-            return
+        if not group or not group["is_active"]: return
         promo = increment_msg_count(chat.id)
         if promo:
-            await update.message.reply_text(f"📢 {promo}")
-            return
+            await update.message.reply_text(f"📢 {promo}"); return
         reply = ask_shekha(text, user_name)
         await update.message.reply_text(reply)
 
