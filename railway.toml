@@ -1,6 +1,7 @@
 [build]
 builder = "NIXPACKS"
+buildCommand = "pip install python-telegram-bot==20.7 groq"
 
 [deploy]
-startCommand = "python -u bot.py"
+startCommand = "python bot.py"
 restartPolicyType = "ALWAYS"
