@@ -972,7 +972,7 @@ def main():
     app.add_handler(CommandHandler("forward",     forward_cmd))
     app.add_handler(CommandHandler("stats",       stats_cmd))
     app.add_handler(CallbackQueryHandler(on_button))
-    app.add_handler(MessageHandler(filters.ALL, handle_message))
+    app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, handle_message))
 
     logger.info("🤖 Shekha Bot is running...")
     app.run_polling()
