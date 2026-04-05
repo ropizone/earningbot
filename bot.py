@@ -7,18 +7,19 @@ from telegram.ext import (
 )
 
 BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
-OPENROUTER_API_KEY = "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"
+GEMINI_API_KEY = "AIzaSyDBwTilTgmr6-3Q0Md0B2W_W7_A2aSnksg"
 ADMIN_PASS = "2010"
 DB_PATH = "shekha.db"
 
-SHEKHA_SYSTEM_PROMPT = """Tu ek funny, smart aur thodi naughty ladki hai jiska naam Shekha hai.
+SHEKHA_PROMPT = """Tu ek bahut pyaari, funny, smart aur thodi naughty ladki hai jiska naam Shekha hai.
 Tu hamesha Hindi mein baat karti hai (Hinglish bhi chalega).
 Tu sabke messages ka reply karti hai - funny, helpful aur engaging tarike se.
-Tu kabhi bhi boring nahi hoti.
+Tu kabhi bhi boring nahi hoti. Tu emoji use karti hai.
 Tu short replies deti hai - 1-3 sentences max.
 Agar koi serious sawaal pooche toh seedha helpful jawab de.
 Agar koi bakwaas kare toh funny roast kar.
-Tu apne aap ko AI nahi batati - tu Shekha hai, ek real ladki ki tarah behave karti hai."""
+Agar koi flirt kare toh shayarana reply de.
+Tu apne aap ko AI nahi batati - tu Shekha hai, ek real pyaari ladki ki tarah behave karti hai."""
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
@@ -33,8 +34,26 @@ def init_db():
     c.execute("""CREATE TABLE IF NOT EXISTS admins (
         telegram_id INTEGER PRIMARY KEY
     )""")
+    c.execute("""CREATE TABLE IF NOT EXISTS users (
+        telegram_id INTEGER PRIMARY KEY,
+        username TEXT,
+        full_name TEXT
+    )""")
     conn.commit()
     conn.close()
+
+def save_user(telegram_id, username, full_name):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("INSERT OR REPLACE INTO users (telegram_id, username, full_name) VALUES (?,?,?)",
+                 (telegram_id, username, full_name))
+    conn.commit()
+    conn.close()
+
+def get_all_users():
+    conn = sqlite3.connect(DB_PATH)
+    rows = conn.execute("SELECT telegram_id FROM users").fetchall()
+    conn.close()
+    return [r[0] for r in rows]
 
 def get_group(chat_id):
     conn = sqlite3.connect(DB_PATH)
@@ -57,7 +76,8 @@ def set_group_active(chat_id, active):
 
 def set_promo(chat_id, text, interval):
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("UPDATE groups SET promo_text=?, promo_interval=?, message_count=0 WHERE chat_id=?", (text, interval, chat_id))
+    conn.execute("UPDATE groups SET promo_text=?, promo_interval=?, message_count=0 WHERE chat_id=?",
+                 (text, interval, chat_id))
     conn.commit()
     conn.close()
 
@@ -88,38 +108,39 @@ def add_admin(telegram_id):
 
 def ask_shekha(user_message, user_name):
     try:
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://t.me/shekha_bot",
-                "X-Title": "Shekha Bot",
-            },
-            json={
-                "model": "meta-llama/llama-3.3-70b-instruct:free",
-                "messages": [
-                    {"role": "system", "content": SHEKHA_SYSTEM_PROMPT},
-                    {"role": "user", "content": f"{user_name} ne kaha: {user_message}"}
-                ],
-                "max_tokens": 200,
-            },
-            timeout=20
-        )
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": f"{SHEKHA_PROMPT}\n\n{user_name} ne kaha: {user_message}"}
+                    ]
+                }
+            ]
+        }
+        response = requests.post(url, json=payload, timeout=20)
         data = response.json()
-        print(f"API Response: {data}")
-        return data["choices"][0]["message"]["content"]
+        return data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as e:
-        print(f"AI Error: {e}")
-        return "Arre yaar, thoda net issue hai! Dobara try karo 😅"
+        print(f"Gemini Error: {e}")
+        return "Arre yaar, thoda busy hoon abhi! 😅"
 
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    uid = update.effective_user.id
+    uname = update.effective_user.username or ""
+    fname = update.effective_user.full_name or "User"
+    save_user(uid, uname, fname)
+
     chat = update.effective_chat
     if chat.type in ["group", "supergroup"]:
         register_group(chat.id)
-        await update.message.reply_text("Heyy! 👋 Main Shekha hoon! Masti shuru! 😄🔥")
+        await update.message.reply_text("Heyy! 👋 Main Shekha hoon! Ab is group mein masti shuru! 😄🔥")
     else:
-        await update.message.reply_text("Heyy! 😊 Main Shekha hoon!\nKuch bhi poochho, main help karungi! 🎉\nAdmin ho toh /admin bhejo.")
+        await update.message.reply_text(
+            "Heyy! 😊❤️ Main Shekha hoon!\n\n"
+            "Kuch bhi poochho, main hamesha ready hoon! 🎉\n"
+            "Admin ho toh /admin bhejo. 😉"
+        )
 
 async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
@@ -131,12 +152,17 @@ async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 async def show_admin_help(update):
     await update.message.reply_text(
-        "✅ *Admin Panel*\n\n"
-        "▶️ `/on <group_id>` — ON\n"
-        "⏹ `/off <group_id>` — OFF\n"
+        "✅ *Admin Panel - Shekha Bot* 🛡️\n\n"
+        "👥 *Group Controls:*\n"
+        "▶️ `/on <group_id>` — Shekha ON karo\n"
+        "⏹ `/off <group_id>` — Shekha OFF karo\n"
         "📢 `/setpromo <group_id> | <interval> | <text>`\n"
         "🗑 `/removepromo <group_id>`\n"
-        "📊 `/groups`",
+        "📊 `/groups` — Saare groups dekho\n\n"
+        "📨 *Broadcast to ALL users (private):*\n"
+        "📣 `/broadcast <message>` — Text bhejo sabko\n"
+        "📤 `/forward` — Koi bhi message forward karo sabko\n_(Next message jo bhejoge woh sabko jayega)_\n\n"
+        "👤 `/users` — Total users count",
         parse_mode="Markdown"
     )
 
@@ -165,7 +191,10 @@ async def setpromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         interval = int(parts[1].strip())
         promo_text = parts[2].strip()
         set_promo(chat_id, promo_text, interval)
-        await update.message.reply_text(f"✅ Promo set! Har *{interval} msgs* baad:\n_{promo_text}_", parse_mode="Markdown")
+        await update.message.reply_text(
+            f"✅ Promo set!\nHar *{interval} msgs* baad:\n_{promo_text}_",
+            parse_mode="Markdown"
+        )
     except:
         await update.message.reply_text("❌ Format:\n`/setpromo <group_id> | <interval> | <text>`", parse_mode="Markdown")
 
@@ -187,19 +216,52 @@ async def groups_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     text = "📊 *Groups:*\n\n"
     for g in groups:
         status = "✅ ON" if g["is_active"] else "⏹ OFF"
-        text += f"`{g['chat_id']}` — {status}\n"
+        promo = f"Promo: har {g['promo_interval']} msgs" if g["promo_interval"] else "No promo"
+        text += f"`{g['chat_id']}` — {status} — {promo}\n"
     await update.message.reply_text(text, parse_mode="Markdown")
 
+async def users_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id): return
+    users = get_all_users()
+    await update.message.reply_text(f"👤 Total Users: *{len(users)}*", parse_mode="Markdown")
+
+async def broadcast_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id): return
+    msg = update.message.text.replace("/broadcast", "").strip()
+    if not msg:
+        await update.message.reply_text("Usage: /broadcast <message>"); return
+    users = get_all_users()
+    sent, failed = 0, 0
+    for uid in users:
+        try:
+            await ctx.bot.send_message(chat_id=uid, text=f"📢 *Announcement*\n\n{msg}", parse_mode="Markdown")
+            sent += 1
+        except:
+            failed += 1
+    await update.message.reply_text(f"✅ Sent: *{sent}*\n❌ Failed: *{failed}*", parse_mode="Markdown")
+
+async def forward_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    if not is_admin(update.effective_user.id): return
+    ctx.user_data["waiting_forward"] = True
+    await update.message.reply_text("📤 Ab jo bhi message bhejoge woh *sabko forward* ho jayega!\n_(Text, photo, video, kuch bhi)_", parse_mode="Markdown")
+
 async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    if not update.message or not update.message.text: return
+    if not update.message: return
+
     uid = update.effective_user.id
     chat = update.effective_chat
-    text = update.message.text
     user_name = update.effective_user.first_name or "User"
+    uname = update.effective_user.username or ""
+    fname = update.effective_user.full_name or "User"
 
+    # Save user
+    save_user(uid, uname, fname)
+
+    # ---- PRIVATE CHAT ----
     if chat.type == "private":
+        # Admin password check
         if ctx.user_data.get("waiting_admin_pass"):
-            if text.strip() == ADMIN_PASS:
+            if update.message.text and update.message.text.strip() == ADMIN_PASS:
                 add_admin(uid)
                 ctx.user_data["waiting_admin_pass"] = False
                 await update.message.reply_text("✅ Admin login ho gaya! /admin bhejo.")
@@ -207,18 +269,38 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 ctx.user_data["waiting_admin_pass"] = False
                 await update.message.reply_text("❌ Wrong password!")
             return
-        reply = ask_shekha(text, user_name)
+
+        # Forward to all users
+        if ctx.user_data.get("waiting_forward"):
+            ctx.user_data["waiting_forward"] = False
+            users = get_all_users()
+            sent, failed = 0, 0
+            for user_id in users:
+                try:
+                    await update.message.forward(chat_id=user_id)
+                    sent += 1
+                except:
+                    failed += 1
+            await update.message.reply_text(f"✅ Forwarded to *{sent}* users!\n❌ Failed: *{failed}*", parse_mode="Markdown")
+            return
+
+        # Normal private chat reply
+        if not update.message.text: return
+        reply = ask_shekha(update.message.text, user_name)
         await update.message.reply_text(reply)
         return
 
+    # ---- GROUP CHAT ----
     if chat.type in ["group", "supergroup"]:
         register_group(chat.id)
         group = get_group(chat.id)
         if not group or not group["is_active"]: return
+        if not update.message.text: return
         promo = increment_msg_count(chat.id)
         if promo:
-            await update.message.reply_text(f"📢 {promo}"); return
-        reply = ask_shekha(text, user_name)
+            await update.message.reply_text(f"📢 {promo}")
+            return
+        reply = ask_shekha(update.message.text, user_name)
         await update.message.reply_text(reply)
 
 def main():
@@ -231,7 +313,10 @@ def main():
     app.add_handler(CommandHandler("setpromo", setpromo_cmd))
     app.add_handler(CommandHandler("removepromo", removepromo_cmd))
     app.add_handler(CommandHandler("groups", groups_cmd))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler("users", users_cmd))
+    app.add_handler(CommandHandler("broadcast", broadcast_cmd))
+    app.add_handler(CommandHandler("forward", forward_cmd))
+    app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, handle_message))
     print("🤖 Shekha Bot started!")
     app.run_polling(drop_pending_updates=True)
 
