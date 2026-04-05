@@ -14,7 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
-GEMINI_API_KEY = "AIzaSyDBwTilTgmr6-3Q0Md0B2W_W7_A2aSnksg"
+GEMINI_API_KEY = "AIzaSyCitI8nbNAjtcSbVh4vey9jIOKFo6Zo2PY"
 ADMIN_PASS = "2010"
 DB_PATH = "shekha.db"
 
@@ -27,6 +27,36 @@ Agar koi serious sawaal pooche toh seedha helpful jawab de.
 Agar koi bakwaas kare toh funny roast kar.
 Agar koi flirt kare toh shayarana reply de.
 Tu apne aap ko AI nahi batati - tu Shekha hai, ek real pyaari ladki ki tarah behave karti hai."""
+
+# 12 models in order — will cycle through if one fails
+GEMINI_MODELS = [
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-2.0-pro-exp",
+    "gemini-2.0-flash-thinking-exp",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
+    "gemini-1.5-pro",
+    "gemini-1.0-pro",
+    "gemini-pro",
+    "gemini-exp-1206",
+    "gemini-exp-1121",
+    "gemini-2.0-flash-exp",
+]
+
+# Tracks current model index globally (persists during runtime)
+current_model_index = 0
+
+BRAIN_SWITCH_MSGS = [
+    "Ek sec... apna dimaag badal rahi hoon 🧠⚡",
+    "Oops! Naya brain load ho raha hai... 🔄🧠",
+    "Yeh wala dimaag kaam nahi kar raha, doosra try karti hoon 😅🔃",
+    "Brain switching... thoda wait karo 💫🧠",
+    "Ek minute, naya mode on kar rahi hoon ⚙️✨",
+    "Purana brain crash ho gaya, naya install kar rahi hoon 😂🔧",
+]
+
+import random
 
 # ───────────────────────── DB ─────────────────────────
 
@@ -134,16 +164,16 @@ def add_admin(telegram_id):
     conn.commit()
     conn.close()
 
-# ───────────────────────── GEMINI ─────────────────────────
+# ───────────────────────── GEMINI WITH BRAIN SWITCH ─────────────────────────
 
-def ask_shekha(user_message, user_name):
-    models = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-        "gemini-pro",
-    ]
-    for model in models:
+async def ask_shekha(user_message, user_name, send_status_func=None):
+    global current_model_index
+
+    total_models = len(GEMINI_MODELS)
+    tried = 0
+
+    while tried < total_models:
+        model = GEMINI_MODELS[current_model_index]
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
             payload = {
@@ -161,21 +191,33 @@ def ask_shekha(user_message, user_name):
             }
             response = requests.post(url, json=payload, timeout=20)
             data = response.json()
-            logger.info(f"Gemini [{model}] status={response.status_code} response={data}")
+            logger.info(f"Gemini [{model}] status={response.status_code}")
 
             if "error" in data:
-                logger.warning(f"Gemini [{model}] API error: {data['error'].get('message','')}")
-                continue
+                raise Exception(data["error"].get("message", "API error"))
 
             reply = data["candidates"][0]["content"]["parts"][0]["text"].strip()
             if reply:
-                return reply
+                logger.info(f"Gemini [{model}] success!")
+                return reply, None  # reply, no switch message
 
         except Exception as e:
-            logger.error(f"Gemini [{model}] exception: {e}")
-            continue
+            logger.warning(f"Gemini [{model}] failed: {e}")
+            # Move to next model
+            current_model_index = (current_model_index + 1) % total_models
+            tried += 1
 
-    return "Yaar kuch toh gadbad hai, thodi der baad try karo! 😅"
+            if tried < total_models:
+                switch_msg = random.choice(BRAIN_SWITCH_MSGS)
+                next_model = GEMINI_MODELS[current_model_index]
+                switch_msg += f"\n_(Brain #{current_model_index + 1}: {next_model})_"
+                # Send brain switch notification
+                if send_status_func:
+                    await send_status_func(switch_msg)
+                continue
+
+    return "Saare dimaag thak gaye! Thodi der baad aana yaar 😴", None
+
 
 # ───────────────────────── HANDLERS ─────────────────────────
 
@@ -352,7 +394,10 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text("Arey kya bheja yeh? Text mein likho na! 😄")
                 return
 
-            reply = ask_shekha(update.message.text, user_name)
+            async def send_status(msg):
+                await update.message.reply_text(msg, parse_mode="Markdown")
+
+            reply, _ = await ask_shekha(update.message.text, user_name, send_status)
             await update.message.reply_text(reply)
             return
 
@@ -380,7 +425,11 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
             if is_mentioned or is_reply_to_bot:
                 clean_text = update.message.text.replace(f"@{bot_username}", "").strip() if bot_username else update.message.text
-                reply = ask_shekha(clean_text, user_name)
+
+                async def send_status(msg):
+                    await update.message.reply_text(msg, parse_mode="Markdown")
+
+                reply, _ = await ask_shekha(clean_text, user_name, send_status)
                 await update.message.reply_text(reply)
 
     except Exception as e:
