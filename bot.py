@@ -960,4 +960,22 @@ def main():
     app.add_handler(CommandHandler("leaderboard", leaderboard_cmd))
     app.add_handler(CommandHandler("admin",       admin_cmd))
     app.add_handler(CommandHandler("payments",    payments_cmd))
-    app.add_handler(
+    app.add_handler(CommandHandler("addcredits",  addcredits_cmd))
+    app.add_handler(CommandHandler("removeadmin", removeadmin_cmd))
+    app.add_handler(CommandHandler("on",          on_cmd))
+    app.add_handler(CommandHandler("off",         off_cmd))
+    app.add_handler(CommandHandler("setpromo",    setpromo_cmd))
+    app.add_handler(CommandHandler("removepromo", removepromo_cmd))
+    app.add_handler(CommandHandler("groups",      groups_cmd))
+    app.add_handler(CommandHandler("users",       users_cmd))
+    app.add_handler(CommandHandler("broadcast",   broadcast_cmd))
+    app.add_handler(CommandHandler("forward",     forward_cmd))
+    app.add_handler(CommandHandler("stats",       stats_cmd))
+    app.add_handler(CallbackQueryHandler(on_button))
+    app.add_handler(MessageHandler(filters.ALL, handle_message))
+
+    logger.info("🤖 Shekha Bot is running...")
+    app.run_polling()
+
+if __name__ == "__main__":
+    main()
