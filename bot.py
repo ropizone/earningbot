@@ -1,5 +1,5 @@
 import sqlite3
-import requests
+from openai import OpenAI
 from telegram import Update
 from telegram.ext import (
     Application, CommandHandler, MessageHandler,
@@ -8,7 +8,7 @@ from telegram.ext import (
 
 # ========== CONFIG ==========
 BOT_TOKEN = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
-DEEPSEEK_API_KEY = "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"
+OPENROUTER_API_KEY = "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"
 ADMIN_PASS = "2010"
 
 DB_PATH = "shekha.db"
@@ -21,6 +21,12 @@ Tu short replies deti hai - 1-3 sentences max.
 Agar koi serious sawaal pooche toh seedha helpful jawab de.
 Agar koi bakwaas kare toh funny roast kar.
 Tu apne aap ko AI nahi batati - tu Shekha hai, ek real ladki ki tarah behave karti hai."""
+
+# ========== OPENROUTER CLIENT ==========
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY,
+)
 
 # ========== DATABASE ==========
 def init_db():
@@ -94,27 +100,24 @@ def add_admin(telegram_id):
     conn.commit()
     conn.close()
 
-# ========== DEEPSEEK ==========
-def ask_deepseek(user_message, user_name):
-    url = "https://api.deepseek.com/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": "deepseek-chat",
-        "messages": [
-            {"role": "system", "content": SHEKHA_SYSTEM_PROMPT},
-            {"role": "user", "content": f"{user_name} ne kaha: {user_message}"}
-        ],
-        "max_tokens": 200,
-        "temperature": 0.9
-    }
+# ========== AI REPLY ==========
+def ask_shekha(user_message, user_name):
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=15)
-        data = response.json()
-        return data["choices"][0]["message"]["content"]
-    except:
+        completion = client.chat.completions.create(
+            extra_headers={
+                "HTTP-Referer": "https://t.me/shekha_bot",
+                "X-Title": "Shekha Bot",
+            },
+            model="deepseek/deepseek-r1-distill-qwen-32b",
+            messages=[
+                {"role": "system", "content": SHEKHA_SYSTEM_PROMPT},
+                {"role": "user", "content": f"{user_name} ne kaha: {user_message}"}
+            ],
+            max_tokens=200,
+        )
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"AI Error: {e}")
         return "Arre yaar, abhi thoda busy hoon! Thodi der baad baat karte hain 😅"
 
 # ========== HANDLERS ==========
@@ -242,8 +245,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 ctx.user_data["waiting_admin_pass"] = False
                 await update.message.reply_text("❌ Wrong password!")
             return
-        # Reply to everything in private
-        reply = ask_deepseek(text, user_name)
+        reply = ask_shekha(text, user_name)
         await update.message.reply_text(reply)
         return
 
@@ -257,7 +259,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         if promo:
             await update.message.reply_text(f"📢 {promo}")
             return
-        reply = ask_deepseek(text, user_name)
+        reply = ask_shekha(text, user_name)
         await update.message.reply_text(reply)
 
 # ========== MAIN ==========
