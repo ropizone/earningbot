@@ -13,9 +13,9 @@ from telegram.ext import (
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                    CONFIG
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 BOT_TOKEN    = "8663479623:AAEcaM8MXa28bXqTBBh6y9AyH7PhtRHGUWA"
 GROQ_API_KEY = "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"
 ADMIN_PASS   = "2010"
@@ -47,20 +47,20 @@ Agar koi flirt kare toh shayarana reply de.
 Tu apne aap ko AI nahi batati - tu Shekha hai, ek real pyaari ladki ki tarah behave karti hai."""
 
 BRAIN_MSGS = [
-    "Ek sec... apna dimaag badal rahi hoon \ud83e\udde0\u26a1",
-    "Oops! Naya brain load ho raha hai \ud83d\udd04\ud83e\udde0",
-    "Yeh wala kaam nahi kar raha, doosra try karti hoon \ud83d\ude05",
-    "Brain switching... \ud83d\udcab",
+    "Ek sec... apna dimaag badal rahi hoon \U0001f9e0\u26a1",
+    "Oops! Naya brain load ho raha hai \U0001f504\U0001f9e0",
+    "Yeh wala kaam nahi kar raha, doosra try karti hoon \U0001f605",
+    "Brain switching... \U0001f4ab",
     "Naya mode on kar rahi hoon \u2699\ufe0f\u2728",
-    "Purana crash, naya install kar rahi hoon \ud83d\ude02\ud83d\udd27",
+    "Purana crash, naya install kar rahi hoon \U0001f602\U0001f527",
 ]
 
 groq_client      = Groq(api_key=GROQ_API_KEY)
 current_model_ix = 0
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                   DATABASE
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -106,9 +106,9 @@ def init_db():
     conn.commit()
     conn.close()
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                 USER HELPERS
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 def today_str():
     return datetime.now().strftime("%Y-%m-%d")
 
@@ -231,9 +231,9 @@ def get_top_referrers(limit=10):
     conn.close()
     return rows
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                GROUP HELPERS
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 def get_group(chat_id):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -268,9 +268,9 @@ def increment_msg(chat_id):
         return row[2]
     return None
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #              PAYMENT HELPERS
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 def submit_payment(user_id, utr, amount, credits):
     conn = sqlite3.connect(DB_PATH)
     conn.execute("INSERT INTO payments (user_id, utr, amount, status, credits, created_at) VALUES (?,?,?,?,?,?)",
@@ -295,9 +295,9 @@ def update_payment(pay_id, status):
     conn.execute("UPDATE payments SET status=? WHERE id=?", (status, pay_id))
     conn.commit(); conn.close()
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                  GROQ AI
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 async def ask_shekha(user_message, user_name, status_fn=None):
     global current_model_ix
     total = len(GROQ_MODELS)
@@ -325,30 +325,30 @@ async def ask_shekha(user_message, user_name, status_fn=None):
                 next_model = GROQ_MODELS[current_model_ix]
                 msg = random.choice(BRAIN_MSGS) + f"\n_(Brain #{current_model_ix+1}: {next_model})_"
                 await status_fn(msg)
-    return "Saare dimaag thak gaye! Thodi der baad try karo \ud83d\ude34"
+    return "Saare dimaag thak gaye! Thodi der baad try karo \U0001f634"
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                  KEYBOARDS
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 def main_kb():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("\ud83d\udcac Chat with Shekha", callback_data="chat"),
-         InlineKeyboardButton("\ud83d\udcca My Credits", callback_data="credits")],
-        [InlineKeyboardButton("\ud83d\udcb3 Buy Credits", callback_data="buy"),
-         InlineKeyboardButton("\ud83d\udc65 Refer & Earn", callback_data="refer")],
-        [InlineKeyboardButton("\ud83c\udfc6 Leaderboard", callback_data="leaderboard"),
+        [InlineKeyboardButton("\U0001f4ac Chat with Shekha", callback_data="chat"),
+         InlineKeyboardButton("\U0001f4ca My Credits", callback_data="credits")],
+        [InlineKeyboardButton("\U0001f4b3 Buy Credits", callback_data="buy"),
+         InlineKeyboardButton("\U0001f465 Refer & Earn", callback_data="refer")],
+        [InlineKeyboardButton("\U0001f3c6 Leaderboard", callback_data="leaderboard"),
          InlineKeyboardButton("\u2753 Help", callback_data="help")],
-        [InlineKeyboardButton("\ud83d\udcde Support", url=f"https://t.me/{SUPPORT_USER.lstrip('@')}")],
+        [InlineKeyboardButton("\U0001f4de Support", url=f"https://t.me/{SUPPORT_USER.lstrip('@')}")],
     ])
 
 def buy_kb():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("\u2b50 50 Credits \u2014 \u20b910",  callback_data="pack_50_10"),
-         InlineKeyboardButton("\u2b50 100 Credits \u2014 \u20b918", callback_data="pack_100_18")],
-        [InlineKeyboardButton("\ud83d\udc8e 250 Credits \u2014 \u20b940", callback_data="pack_250_40"),
-         InlineKeyboardButton("\ud83d\udc8e 500 Credits \u2014 \u20b975", callback_data="pack_500_75")],
-        [InlineKeyboardButton("\ud83d\udc51 1000 Credits \u2014 \u20b9130", callback_data="pack_1000_130")],
-        [InlineKeyboardButton("\ud83d\udd19 Back", callback_data="back")],
+        [InlineKeyboardButton("\u2b50 50 Credits \u2014 \u20b910",   callback_data="pack_50_10"),
+         InlineKeyboardButton("\u2b50 100 Credits \u2014 \u20b918",  callback_data="pack_100_18")],
+        [InlineKeyboardButton("\U0001f48e 250 Credits \u2014 \u20b940",  callback_data="pack_250_40"),
+         InlineKeyboardButton("\U0001f48e 500 Credits \u2014 \u20b975",  callback_data="pack_500_75")],
+        [InlineKeyboardButton("\U0001f451 1000 Credits \u2014 \u20b9130", callback_data="pack_1000_130")],
+        [InlineKeyboardButton("\U0001f519 Back", callback_data="back")],
     ])
 
 def pay_admin_kb(pay_id):
@@ -358,22 +358,23 @@ def pay_admin_kb(pay_id):
     ]])
 
 def back_kb():
-    return InlineKeyboardMarkup([[InlineKeyboardButton("\ud83d\udd19 Back", callback_data="back")]])
+    return InlineKeyboardMarkup([[InlineKeyboardButton("\U0001f519 Back", callback_data="back")]])
 
 def admin_kb():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("\ud83d\udcb3 Payments",    callback_data="adm_payments"),
-         InlineKeyboardButton("\ud83d\udcca Stats",       callback_data="adm_stats")],
-        [InlineKeyboardButton("\ud83d\udc65 Users",       callback_data="adm_users"),
-         InlineKeyboardButton("\ud83d\udce2 Broadcast",   callback_data="adm_broadcast")],
-        [InlineKeyboardButton("\ud83c\udfd8\ufe0f Groups",      callback_data="adm_groups"),
-         InlineKeyboardButton("\u2795 Add Credits",  callback_data="adm_addcredits")],
-        [InlineKeyboardButton("\ud83d\udce4 Forward Msg", callback_data="adm_forward")],
+        [InlineKeyboardButton("\U0001f4b3 Payments",     callback_data="adm_payments"),
+         InlineKeyboardButton("\U0001f4ca Stats",         callback_data="adm_stats")],
+        [InlineKeyboardButton("\U0001f465 Users",         callback_data="adm_users"),
+         InlineKeyboardButton("\U0001f4e2 Broadcast",     callback_data="adm_broadcast")],
+        [InlineKeyboardButton("\U0001f3d9 Groups",        callback_data="adm_groups"),
+         InlineKeyboardButton("\u2795 Add Credits",       callback_data="adm_addcredits")],
+        [InlineKeyboardButton("\U0001f4e4 Forward Post",  callback_data="adm_forward"),
+         InlineKeyboardButton("\U0001f4e3 Promo DM All",  callback_data="adm_promo_dm")],
     ])
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-#                  /start
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
+#                    /start
+# ═══════════════════════════════════════════════
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     try:
         uid   = update.effective_user.id
@@ -394,38 +395,48 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
         save_user(uid, uname, fname, referred_by)
 
-        # Clear any old reply keyboard
-        await update.message.reply_text(".", reply_markup=ReplyKeyboardRemove())
-        await update.message.delete()
+        # Silently remove any old bottom keyboard
+        try:
+            tmp = await update.message.reply_text("\u200b", reply_markup=ReplyKeyboardRemove())
+            await tmp.delete()
+        except: pass
 
         if chat.type in ["group", "supergroup"]:
             register_group(chat.id)
-            await update.message.reply_text("Heyy! \ud83d\udc4b Main Shekha hoon! Masti shuru karte hain! \ud83d\ude04\ud83d\udd25")
+            await update.message.reply_text(
+                "Heyy! \U0001f44b Main Shekha hoon! Masti shuru karte hain! \U0001f604\U0001f525",
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("\U0001f4ac Chat with me!", url=f"https://t.me/{ctx.bot.username}")
+                ]])
+            )
             return
 
         cr = get_credits(uid)
 
         if referred_by:
             await update.message.reply_text(
-                f"\ud83c\udf89 *Welcome bonus!* Tumhe *{REFER_REWARD_NEW_USER} extra credits* mile referral ke liye!",
+                f"\U0001f389 *Welcome bonus!* Tumhe *{REFER_REWARD_NEW_USER} extra credits* mile referral ke liye!",
                 parse_mode="Markdown"
             )
 
         await update.message.reply_text(
-            f"Heyy *{name}*! \ud83d\ude0a\u2764\ufe0f Main *Shekha* hoon!\n\n"
-            f"Kuch bhi poochho \u2014 main ready hoon! \ud83c\udf89\n\n"
-            f"\ud83d\udcb0 *Credits:* {cr} available\n"
-            f"\ud83c\udd93 Free: {FREE_CREDITS}/day (midnight reset)\n"
-            f"\ud83d\udc65 Refer karke aur credits kamao!\n\n"
-            f"Kya karna hai? \ud83d\udc47",
-            parse_mode="Markdown", reply_markup=main_kb()
+            f"Heyy *{name}*! \U0001f60a\u2764\ufe0f Main *Shekha* hoon!\n\n"
+            f"Tumse milke bahut khushi hui! \U0001f389\n\n"
+            f"\U0001f4b0 *Credits:* {cr} available\n"
+            f"\U0001f193 Free: {FREE_CREDITS} messages/day\n"
+            f"\U0001f550 Midnight pe reset hota hai\n"
+            f"\U0001f465 Refer karke aur credits kamao!\n"
+            f"\U0001f4b3 Credits khatam? /buy se kharido!\n\n"
+            f"Kya karna hai? \U0001f447",
+            parse_mode="Markdown",
+            reply_markup=main_kb()
         )
     except Exception as e:
-        logger.error(f"start: {e}")
+        logger.error(f"start error: {e}")
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #               COMMANDS
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 async def credits_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     reset_if_needed(uid)
@@ -434,18 +445,18 @@ async def credits_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Pehle /start karo!"); return
     total = int(info["credits"] or 0) + int(info["extra_credits"] or 0)
     await update.message.reply_text(
-        f"\ud83d\udcca *Tumhare Credits*\n\n"
-        f"\ud83c\udd93 Daily Credits: *{info['credits']}/{FREE_CREDITS}*\n"
-        f"\ud83d\udc8e Paid Credits: *{info['extra_credits']}*\n"
+        f"\U0001f4ca *Tumhare Credits*\n\n"
+        f"\U0001f193 Daily Credits: *{info['credits']}/{FREE_CREDITS}*\n"
+        f"\U0001f48e Paid Credits: *{info['extra_credits']}*\n"
         f"\u2705 Total: *{total}*\n"
-        f"\ud83d\udcc5 Last Reset: {info['last_reset']}\n"
-        f"\ud83d\udc65 Referred: *{info['total_referred']}* log\n"
-        f"\ud83c\udf81 Earned via Refer: *{info['total_earned']}* credits",
+        f"\U0001f4c5 Last Reset: {info['last_reset']}\n"
+        f"\U0001f465 Referred: *{info['total_referred']}* log\n"
+        f"\U0001f381 Earned via Refer: *{info['total_earned']}* credits",
         parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("\ud83d\udcb3 Buy More", callback_data="buy"),
-             InlineKeyboardButton("\ud83d\udc65 Refer & Earn", callback_data="refer")],
-            [InlineKeyboardButton("\ud83d\udd19 Back", callback_data="back")]
+            [InlineKeyboardButton("\U0001f4b3 Buy More", callback_data="buy"),
+             InlineKeyboardButton("\U0001f465 Refer & Earn", callback_data="refer")],
+            [InlineKeyboardButton("\U0001f519 Back", callback_data="back")]
         ])
     )
 
@@ -457,31 +468,32 @@ async def refer_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     bot_username = ctx.bot.username
     ref_link = f"https://t.me/{bot_username}?start={make_refer_code(uid)}"
     await update.message.reply_text(
-        f"\ud83d\udc65 *Refer & Earn!*\n\n"
+        f"\U0001f465 *Refer & Earn!*\n\n"
         f"Apna referral link share karo:\n`{ref_link}`\n\n"
-        f"\ud83c\udf81 *Reward:*\n"
+        f"\U0001f381 *Reward:*\n"
         f"\u2022 Tumhe: *{REFER_REWARD_REFERRER} credits* per referral\n"
         f"\u2022 New user ko: *{REFER_REWARD_NEW_USER} credits* bonus\n\n"
-        f"\ud83d\udcc8 *Tumhara Record:*\n"
+        f"\U0001f4c8 *Tumhara Record:*\n"
         f"\u2022 Referred: *{info['total_referred']}* log\n"
         f"\u2022 Total Earned: *{info['total_earned']}* credits\n\n"
-        f"Jitna refer, utna earn! \ud83d\ude80",
+        f"Jitna refer, utna earn! \U0001f680",
         parse_mode="Markdown",
         reply_markup=back_kb()
     )
 
 async def buy_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        f"\ud83d\udcb3 *Credits Kharido!*\n\nUPI ID: `{PAYMENT_UPI}`\n\nPack chuno \ud83d\udc47",
-        parse_mode="Markdown", reply_markup=buy_kb()
+        f"\U0001f4b3 *Credits Kharido!*\n\nUPI ID: `{PAYMENT_UPI}`\n\nPack chuno \U0001f447",
+        parse_mode="Markdown",
+        reply_markup=buy_kb()
     )
 
 async def leaderboard_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     top = get_top_referrers(10)
-    txt = "\ud83c\udfc6 *Top Referrers*\n\n"
-    medals = ["\ud83e\udd47","\ud83e\udd48","\ud83e\udd49","4\ufe0f\u20e3","5\ufe0f\u20e3","6\ufe0f\u20e3","7\ufe0f\u20e3","8\ufe0f\u20e3","9\ufe0f\u20e3","\ud83d\udd1f"]
+    txt = "\U0001f3c6 *Top Referrers*\n\n"
+    medals = ["\U0001f947","\U0001f948","\U0001f949","4\ufe0f\u20e3","5\ufe0f\u20e3","6\ufe0f\u20e3","7\ufe0f\u20e3","8\ufe0f\u20e3","9\ufe0f\u20e3","\U0001f51f"]
     if not top:
-        txt += "Abhi koi nahi! Tum pehle ban sakte ho \ud83d\ude80"
+        txt += "Abhi koi nahi! Tum pehle ban sakte ho \U0001f680"
     for i, u in enumerate(top):
         name = (u["username"] and f"@{u['username']}") or u["full_name"] or "Unknown"
         txt += f"{medals[i]} {name} \u2014 *{u['total_referred']}* refs ({u['total_earned']} credits)\n"
@@ -491,20 +503,25 @@ async def admin_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     if is_admin(uid):
         await show_admin_panel(update, ctx); return
-    await update.message.reply_text("\ud83d\udd10 *Admin password bhejo:*", parse_mode="Markdown")
+    await update.message.reply_text("\U0001f510 *Admin password bhejo:*", parse_mode="Markdown")
     ctx.user_data["waiting_admin_pass"] = True
 
 async def show_admin_panel(update, ctx):
     tu, tp, tr, pp, tm = get_stats()
-    await update.message.reply_text(
-        f"\ud83d\udee1\ufe0f *Admin Panel*\n\n"
-        f"\ud83d\udc65 Total Users: *{tu}*\n"
-        f"\ud83d\udcac Total Messages: *{tm}*\n"
+    msg_obj = update.message if update.message else None
+    if not msg_obj and update.callback_query:
+        msg_obj = update.callback_query.message
+    if not msg_obj: return
+    await msg_obj.reply_text(
+        f"\U0001f6e1\ufe0f *Admin Panel*\n\n"
+        f"\U0001f465 Total Users: *{tu}*\n"
+        f"\U0001f4ac Total Messages: *{tm}*\n"
         f"\u2705 Approved Payments: *{tp}*\n"
         f"\u23f3 Pending Payments: *{pp}*\n"
-        f"\ud83d\udcb0 Total Revenue: *\u20b9{tr}*\n\n"
-        f"Kya karna hai? \ud83d\udc47",
-        parse_mode="Markdown", reply_markup=admin_kb()
+        f"\U0001f4b0 Total Revenue: *\u20b9{tr}*\n\n"
+        f"Kya karna hai? \U0001f447",
+        parse_mode="Markdown",
+        reply_markup=admin_kb()
     )
 
 async def payments_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -519,12 +536,13 @@ async def payments_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         except:
             who = str(p["user_id"])
         await update.message.reply_text(
-            f"\ud83d\udcb3 *Payment #{p['id']}*\n\n"
-            f"\ud83d\udc64 {who} (`{p['user_id']}`)\n"
-            f"\ud83d\udcb0 \u20b9{p['amount']} \u2192 {p['credits']} credits\n"
-            f"\ud83d\udd22 UTR: `{p['utr']}`\n"
-            f"\ud83d\udcc5 {p['created_at']}",
-            parse_mode="Markdown", reply_markup=pay_admin_kb(p["id"])
+            f"\U0001f4b3 *Payment #{p['id']}*\n\n"
+            f"\U0001f464 {who} (`{p['user_id']}`)\n"
+            f"\U0001f4b0 \u20b9{p['amount']} \u2192 {p['credits']} credits\n"
+            f"\U0001f522 UTR: `{p['utr']}`\n"
+            f"\U0001f4c5 {p['created_at']}",
+            parse_mode="Markdown",
+            reply_markup=pay_admin_kb(p["id"])
         )
 
 async def addcredits_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -534,7 +552,7 @@ async def addcredits_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         add_credits(uid, amt)
         await update.message.reply_text(f"\u2705 *{amt} credits* added to `{uid}`!", parse_mode="Markdown")
         try:
-            await ctx.bot.send_message(uid, f"\ud83c\udf81 *Admin ne tumhe {amt} credits diye!* \ud83c\udf89", parse_mode="Markdown")
+            await ctx.bot.send_message(uid, f"\U0001f381 *Admin ne tumhe {amt} credits diye!* \U0001f389", parse_mode="Markdown")
         except: pass
     except:
         await update.message.reply_text("Usage: /addcredits <user_id> <amount>")
@@ -570,7 +588,7 @@ async def setpromo_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         parts = update.message.text.split("|", 2)
         cid = int(parts[0].split()[-1]); interval = int(parts[1]); text = parts[2].strip()
         set_promo(cid, text, interval)
-        await update.message.reply_text(f"\u2705 Promo set!", parse_mode="Markdown")
+        await update.message.reply_text("\u2705 Promo set!", parse_mode="Markdown")
     except:
         await update.message.reply_text("Usage: /setpromo <group_id>|<interval>|<text>")
 
@@ -590,15 +608,16 @@ async def groups_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     conn.close()
     if not groups:
         await update.message.reply_text("No groups registered."); return
-    txt = "\ud83c\udfd8\ufe0f *Registered Groups*\n\n"
+    txt = "\U0001f3d9 *Registered Groups*\n\n"
     for g in groups:
-        txt += f"`{g['chat_id']}` \u2014 {'\u2705 ON' if g['is_active'] else '\u274c OFF'}\n"
-        txt += f"promo har {g['promo_interval']} msgs\n" if g["promo_interval"] else "no promo\n"
+        status = "\u2705 ON" if g["is_active"] else "\u274c OFF"
+        txt += f"`{g['chat_id']}` \u2014 {status}\n"
+        txt += f"Promo har {g['promo_interval']} msgs\n" if g["promo_interval"] else "No promo\n"
     await update.message.reply_text(txt, parse_mode="Markdown")
 
 async def users_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id): return
-    await update.message.reply_text(f"\ud83d\udc64 Total Users: *{len(get_all_users())}*", parse_mode="Markdown")
+    await update.message.reply_text(f"\U0001f464 Total Users: *{len(get_all_users())}*", parse_mode="Markdown")
 
 async def broadcast_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id): return
@@ -608,7 +627,7 @@ async def broadcast_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     sent = failed = 0
     for uid in get_all_users():
         try:
-            await ctx.bot.send_message(uid, f"\ud83d\udce2 *Announcement*\n\n{msg}", parse_mode="Markdown")
+            await ctx.bot.send_message(uid, f"\U0001f4e2 *Announcement*\n\n{msg}", parse_mode="Markdown")
             sent += 1
         except: failed += 1
     await update.message.reply_text(f"\u2705 Sent: *{sent}*\n\u274c Failed: *{failed}*", parse_mode="Markdown")
@@ -616,24 +635,24 @@ async def broadcast_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def forward_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id): return
     ctx.user_data["waiting_forward"] = True
-    await update.message.reply_text("\ud83d\udce4 Next message sabko forward ho jayega!")
+    await update.message.reply_text("\U0001f4e4 Next message sabko forward ho jayega!")
 
 async def stats_cmd(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.effective_user.id): return
     tu, tp, tr, pp, tm = get_stats()
     await update.message.reply_text(
-        f"\ud83d\udcca *Bot Statistics*\n\n"
-        f"\ud83d\udc65 Total Users: *{tu}*\n"
-        f"\ud83d\udcac Total Messages: *{tm}*\n"
+        f"\U0001f4ca *Bot Statistics*\n\n"
+        f"\U0001f465 Total Users: *{tu}*\n"
+        f"\U0001f4ac Total Messages: *{tm}*\n"
         f"\u2705 Approved Payments: *{tp}*\n"
         f"\u23f3 Pending Payments: *{pp}*\n"
-        f"\ud83d\udcb0 Total Revenue: *\u20b9{tr}*",
+        f"\U0001f4b0 Total Revenue: *\u20b9{tr}*",
         parse_mode="Markdown"
     )
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #              CALLBACK BUTTONS
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     q    = update.callback_query
     await q.answer()
@@ -641,7 +660,8 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     data = q.data
 
     if data == "chat":
-        await q.edit_message_text("\ud83d\udcac Bas message bhejo! Main ready hoon \ud83d\ude0a\n_(/credits se balance check karo)_",
+        await q.edit_message_text(
+            "\U0001f4ac Bas message bhejo! Main ready hoon \U0001f60a\n_(/credits se balance check karo)_",
             parse_mode="Markdown", reply_markup=back_kb())
 
     elif data == "credits":
@@ -650,23 +670,23 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         if not info: await q.edit_message_text("Pehle /start karo!"); return
         total = int(info["credits"] or 0) + int(info["extra_credits"] or 0)
         await q.edit_message_text(
-            f"\ud83d\udcca *Tumhare Credits*\n\n"
-            f"\ud83c\udd93 Daily: *{info['credits']}/{FREE_CREDITS}*\n"
-            f"\ud83d\udc8e Paid: *{info['extra_credits']}*\n"
+            f"\U0001f4ca *Tumhare Credits*\n\n"
+            f"\U0001f193 Daily: *{info['credits']}/{FREE_CREDITS}*\n"
+            f"\U0001f48e Paid: *{info['extra_credits']}*\n"
             f"\u2705 Total: *{total}*\n"
-            f"\ud83d\udc65 Referred: *{info['total_referred']}* log\n"
-            f"\ud83c\udf81 Earned via Refer: *{info['total_earned']}* credits",
+            f"\U0001f465 Referred: *{info['total_referred']}* log\n"
+            f"\U0001f381 Earned via Refer: *{info['total_earned']}* credits",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("\ud83d\udcb3 Buy More", callback_data="buy"),
-                 InlineKeyboardButton("\ud83d\udc65 Refer & Earn", callback_data="refer")],
-                [InlineKeyboardButton("\ud83d\udd19 Back", callback_data="back")]
+                [InlineKeyboardButton("\U0001f4b3 Buy More", callback_data="buy"),
+                 InlineKeyboardButton("\U0001f465 Refer & Earn", callback_data="refer")],
+                [InlineKeyboardButton("\U0001f519 Back", callback_data="back")]
             ])
         )
 
     elif data == "buy":
         await q.edit_message_text(
-            f"\ud83d\udcb3 *Credits Kharido!*\n\nUPI ID: `{PAYMENT_UPI}`\n\nPack chuno \ud83d\udc47\n_(Pay \u2192 UTR bhejo \u2192 Credits turant!)_",
+            f"\U0001f4b3 *Credits Kharido!*\n\nUPI ID: `{PAYMENT_UPI}`\n\nPack chuno \U0001f447\n_(Pay \u2192 UTR bhejo \u2192 Credits turant!)_",
             parse_mode="Markdown", reply_markup=buy_kb())
 
     elif data == "refer":
@@ -674,18 +694,18 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         ref_link = f"https://t.me/{bot_username}?start={make_refer_code(uid)}"
         info = get_user_info(uid)
         await q.edit_message_text(
-            f"\ud83d\udc65 *Refer & Earn!*\n\nLink:\n`{ref_link}`\n\n"
-            f"\ud83c\udf81 Tumhe: *{REFER_REWARD_REFERRER} credits* per refer\n"
-            f"\ud83c\udf81 New user: *{REFER_REWARD_NEW_USER} credits* bonus\n\n"
-            f"\ud83d\udcc8 Referred: *{info['total_referred']}* | Earned: *{info['total_earned']}* credits",
+            f"\U0001f465 *Refer & Earn!*\n\nLink:\n`{ref_link}`\n\n"
+            f"\U0001f381 Tumhe: *{REFER_REWARD_REFERRER} credits* per refer\n"
+            f"\U0001f381 New user: *{REFER_REWARD_NEW_USER} credits* bonus\n\n"
+            f"\U0001f4c8 Referred: *{info['total_referred']}* | Earned: *{info['total_earned']}* credits",
             parse_mode="Markdown", reply_markup=back_kb())
 
     elif data == "leaderboard":
         top = get_top_referrers(10)
-        txt = "\ud83c\udfc6 *Top Referrers*\n\n"
-        medals = ["\ud83e\udd47","\ud83e\udd48","\ud83e\udd49","4\ufe0f\u20e3","5\ufe0f\u20e3","6\ufe0f\u20e3","7\ufe0f\u20e3","8\ufe0f\u20e3","9\ufe0f\u20e3","\ud83d\udd1f"]
+        txt = "\U0001f3c6 *Top Referrers*\n\n"
+        medals = ["\U0001f947","\U0001f948","\U0001f949","4\ufe0f\u20e3","5\ufe0f\u20e3","6\ufe0f\u20e3","7\ufe0f\u20e3","8\ufe0f\u20e3","9\ufe0f\u20e3","\U0001f51f"]
         if not top:
-            txt += "Abhi koi nahi! Tum pehle ban sakte ho \ud83d\ude80"
+            txt += "Abhi koi nahi! Tum pehle ban sakte ho \U0001f680"
         for i, u in enumerate(top):
             name = (u["username"] and f"@{u['username']}") or u["full_name"] or "Unknown"
             txt += f"{medals[i]} {name} \u2014 *{u['total_referred']}* refs\n"
@@ -699,16 +719,22 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             f"/buy \u2014 Credits kharido\n"
             f"/refer \u2014 Refer karke kamao\n"
             f"/leaderboard \u2014 Top referrers\n\n"
-            f"\ud83d\udca1 Har din {FREE_CREDITS} free credits!\n"
-            f"\ud83d\udc65 Refer karo, credits kamao!\n\n"
+            f"\U0001f4a1 Har din {FREE_CREDITS} free credits!\n"
+            f"\U0001f550 Midnight pe reset hota hai\n"
+            f"\U0001f465 Refer karo, credits kamao!\n"
+            f"\U0001f4b3 Zyada chahiye? Buy karo!\n\n"
             f"Support: {SUPPORT_USER}",
-            parse_mode="Markdown", reply_markup=back_kb())
+            parse_mode="Markdown",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("\U0001f4de Support", url=f"https://t.me/{SUPPORT_USER.lstrip('@')}")],
+                [InlineKeyboardButton("\U0001f519 Back", callback_data="back")]
+            ]))
 
     elif data == "back":
         cr = get_credits(uid)
         name = q.from_user.first_name or "User"
         await q.edit_message_text(
-            f"Heyy *{name}*! \ud83d\ude0a\u2764\ufe0f Main *Shekha* hoon!\n\n\ud83d\udcb0 *Credits:* {cr}\nKya karna hai? \ud83d\udc47",
+            f"Heyy *{name}*! \U0001f60a\u2764\ufe0f Main *Shekha* hoon!\n\n\U0001f4b0 *Credits:* {cr}\nKya karna hai? \U0001f447",
             parse_mode="Markdown", reply_markup=main_kb())
 
     elif data.startswith("pack_"):
@@ -717,36 +743,45 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         ctx.user_data["waiting_utr"] = True
         ctx.user_data["pending_buy"] = {"credits": credits, "amount": str(amount)}
         await q.edit_message_text(
-            f"\ud83d\udcb3 *Payment Details*\n\n"
+            f"\U0001f4b3 *Payment Details*\n\n"
             f"Pack: *{credits} Credits \u2014 \u20b9{amount}*\n\n"
             f"UPI: `{PAYMENT_UPI}`\n\n"
             f"1\ufe0f\u20e3 Pay karo \u20b9{amount}\n"
-            f"2\ufe0f\u20e3 UTR/Transaction ID bhejo \ud83d\udc47",
+            f"2\ufe0f\u20e3 UTR/Transaction ID bhejo \U0001f447",
             parse_mode="Markdown", reply_markup=back_kb())
 
-    # Admin button callbacks
+    # ── Admin callbacks ──────────────────────────
     elif data == "adm_payments":
         if not is_admin(uid): return
         pending = get_pending_payments()
         await q.edit_message_text(
-            f"\ud83d\udcb3 *{len(pending)} Pending Payments*\n\n/payments se full list dekho.",
+            f"\U0001f4b3 *{len(pending)} Pending Payments*\n\n/payments se full list dekho.",
             parse_mode="Markdown", reply_markup=admin_kb())
 
     elif data == "adm_stats":
         if not is_admin(uid): return
         tu, tp, tr, pp, tm = get_stats()
         await q.edit_message_text(
-            f"\ud83d\udcca *Stats*\n\n\ud83d\udc65 Users: *{tu}*\n\ud83d\udcac Messages: *{tm}*\n\u2705 Payments: *{tp}*\n\u23f3 Pending: *{pp}*\n\ud83d\udcb0 Revenue: *\u20b9{tr}*",
+            f"\U0001f4ca *Stats*\n\n\U0001f465 Users: *{tu}*\n\U0001f4ac Messages: *{tm}*\n\u2705 Payments: *{tp}*\n\u23f3 Pending: *{pp}*\n\U0001f4b0 Revenue: *\u20b9{tr}*",
             parse_mode="Markdown", reply_markup=admin_kb())
 
     elif data == "adm_users":
         if not is_admin(uid): return
-        await q.edit_message_text(f"\ud83d\udc64 Total Users: *{len(get_all_users())}*", parse_mode="Markdown", reply_markup=admin_kb())
+        await q.edit_message_text(
+            f"\U0001f464 Total Users: *{len(get_all_users())}*",
+            parse_mode="Markdown", reply_markup=admin_kb())
 
     elif data == "adm_broadcast":
         if not is_admin(uid): return
         ctx.user_data["waiting_broadcast"] = True
-        await q.edit_message_text("\ud83d\udce2 Broadcast message type karo:", reply_markup=back_kb())
+        await q.edit_message_text("\U0001f4e2 Broadcast message type karo:", reply_markup=back_kb())
+
+    elif data == "adm_promo_dm":
+        if not is_admin(uid): return
+        ctx.user_data["waiting_promo_dm"] = True
+        await q.edit_message_text(
+            "\U0001f4e3 *Promo DM*\n\nEk message type karo \u2014 sab users ko private DM ho jayega!\n\nMessage bhejo \U0001f447",
+            parse_mode="Markdown", reply_markup=back_kb())
 
     elif data == "adm_groups":
         if not is_admin(uid): return
@@ -754,21 +789,23 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         conn.row_factory = sqlite3.Row
         groups = conn.execute("SELECT * FROM groups").fetchall()
         conn.close()
-        txt = "\ud83c\udfd8\ufe0f *Groups*\n\n"
+        txt = "\U0001f3d9 *Groups*\n\n"
         for g in groups:
-            txt += f"`{g['chat_id']}` \u2014 {'\u2705 ON' if g['is_active'] else '\u274c OFF'}\n"
+            status = "\u2705 ON" if g["is_active"] else "\u274c OFF"
+            txt += f"`{g['chat_id']}` \u2014 {status}\n"
         await q.edit_message_text(txt or "No groups.", parse_mode="Markdown", reply_markup=admin_kb())
 
     elif data == "adm_addcredits":
         if not is_admin(uid): return
         ctx.user_data["waiting_addcredits"] = True
-        await q.edit_message_text("\u2795 Type: `<user_id> <amount>`\nExample: `123456789 50`",
+        await q.edit_message_text(
+            "\u2795 Type: `<user_id> <amount>`\nExample: `123456789 50`",
             parse_mode="Markdown", reply_markup=back_kb())
 
     elif data == "adm_forward":
         if not is_admin(uid): return
         ctx.user_data["waiting_forward"] = True
-        await q.edit_message_text("\ud83d\udce4 Next message sabko forward ho jayega!", reply_markup=back_kb())
+        await q.edit_message_text("\U0001f4e4 Next message sabko forward ho jayega!", reply_markup=back_kb())
 
     elif data.startswith("approve_"):
         if not is_admin(uid): return
@@ -782,8 +819,9 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             f"\u2705 *Payment #{pay_id} Approved!*\nUser: `{pay['user_id']}`\nCredits: *{pay['credits']}*",
             parse_mode="Markdown")
         try:
-            await ctx.bot.send_message(pay["user_id"],
-                f"\ud83c\udf89 *Payment approved!*\n*{pay['credits']} credits* add ho gaye! Enjoy! \ud83d\ude80",
+            await ctx.bot.send_message(
+                pay["user_id"],
+                f"\U0001f389 *Payment approved!*\n*{pay['credits']} credits* add ho gaye! Enjoy! \U0001f680",
                 parse_mode="Markdown")
         except: pass
 
@@ -796,14 +834,15 @@ async def on_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         update_payment(pay_id, "rejected")
         await q.edit_message_text(f"\u274c *Payment #{pay_id} Rejected!*", parse_mode="Markdown")
         try:
-            await ctx.bot.send_message(pay["user_id"],
+            await ctx.bot.send_message(
+                pay["user_id"],
                 f"\u274c *Payment reject hua!*\nUTR: `{pay['utr']}`\nSupport: {SUPPORT_USER}",
                 parse_mode="Markdown")
         except: pass
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #            MESSAGE HANDLER
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     try:
         if not update.message: return
@@ -835,10 +874,30 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 sent = failed = 0
                 for user_id in get_all_users():
                     try:
-                        await ctx.bot.send_message(user_id, f"\ud83d\udce2 *Announcement*\n\n{msg}", parse_mode="Markdown")
+                        await ctx.bot.send_message(user_id, f"\U0001f4e2 *Announcement*\n\n{msg}", parse_mode="Markdown")
                         sent += 1
                     except: failed += 1
                 await update.message.reply_text(f"\u2705 Sent: *{sent}*\n\u274c Failed: *{failed}*", parse_mode="Markdown")
+                return
+
+            # Promo DM to all users
+            if ctx.user_data.get("waiting_promo_dm") and update.message.text:
+                ctx.user_data["waiting_promo_dm"] = False
+                msg = update.message.text.strip()
+                sent = failed = 0
+                for user_id in get_all_users():
+                    try:
+                        await ctx.bot.send_message(
+                            user_id,
+                            f"\U0001f4e3 *Special Message!*\n\n{msg}\n\nSupport: {SUPPORT_USER}",
+                            parse_mode="Markdown",
+                            reply_markup=InlineKeyboardMarkup([[
+                                InlineKeyboardButton("\U0001f4de Contact", url=f"https://t.me/{SUPPORT_USER.lstrip('@')}")
+                            ]])
+                        )
+                        sent += 1
+                    except: failed += 1
+                await update.message.reply_text(f"\u2705 Promo sent: *{sent}*\n\u274c Failed: *{failed}*", parse_mode="Markdown")
                 return
 
             # Add credits input
@@ -850,7 +909,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                     add_credits(tid, amt)
                     await update.message.reply_text(f"\u2705 *{amt} credits* added to `{tid}`!", parse_mode="Markdown")
                     try:
-                        await ctx.bot.send_message(tid, f"\ud83c\udf81 *Admin ne tumhe {amt} credits diye!* \ud83c\udf89", parse_mode="Markdown")
+                        await ctx.bot.send_message(tid, f"\U0001f381 *Admin ne tumhe {amt} credits diye!* \U0001f389", parse_mode="Markdown")
                     except: pass
                 except:
                     await update.message.reply_text("\u274c Format: `<user_id> <amount>`", parse_mode="Markdown")
@@ -886,12 +945,18 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                     who = f"@{uname}" if uname else fname
                     for adm in admins:
                         try:
-                            await ctx.bot.send_message(adm[0],
-                                f"\ud83d\udcb3 *New Payment!*\n\n\ud83d\udc64 {who} (`{uid}`)\n\ud83d\udcb0 \u20b9{amt} \u2192 {cred} credits\n\ud83d\udd22 UTR: `{utr}`\n\ud83d\udcc5 {datetime.now().strftime('%Y-%m-%d %H:%M')}",
-                                parse_mode="Markdown", reply_markup=pay_admin_kb(pay_id))
+                            await ctx.bot.send_message(
+                                adm[0],
+                                f"\U0001f4b3 *New Payment!*\n\n"
+                                f"\U0001f464 {who} (`{uid}`)\n"
+                                f"\U0001f4b0 \u20b9{amt} \u2192 {cred} credits\n"
+                                f"\U0001f522 UTR: `{utr}`\n"
+                                f"\U0001f4c5 {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+                                parse_mode="Markdown",
+                                reply_markup=pay_admin_kb(pay_id))
                         except: pass
                     await update.message.reply_text(
-                        f"\u2705 *Payment submitted!*\n\nUTR: `{utr}`\nCredits: *{cred}*\n\nAdmin verify karega soon! \ud83d\ude4f",
+                        f"\u2705 *Payment submitted!*\n\nUTR: `{utr}`\nCredits: *{cred}*\n\nAdmin verify karega soon! \U0001f64f",
                         parse_mode="Markdown")
                 else:
                     ctx.user_data["waiting_utr"] = False
@@ -899,13 +964,23 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 return
 
             if not update.message.text:
-                await update.message.reply_text("Text mein likho na yaar! \ud83d\ude04"); return
+                await update.message.reply_text("Text mein likho na yaar! \U0001f604"); return
 
             cr = get_credits(uid)
             if cr <= 0:
                 await update.message.reply_text(
-                    f"\u274c *Credits khatam!*\n\n\ud83d\udd04 Midnight pe {FREE_CREDITS} free milenge.\n\ud83d\udcb3 /buy karo\n\ud83d\udc65 /refer karo \u2014 free credits!\n\nHelp: {SUPPORT_USER}",
-                    parse_mode="Markdown", reply_markup=main_kb()); return
+                    f"\u274c *Credits khatam!*\n\n"
+                    f"\U0001f504 Midnight pe {FREE_CREDITS} free milenge.\n"
+                    f"\U0001f4b3 /buy karo\n"
+                    f"\U0001f465 /refer karo \u2014 free credits!\n\n"
+                    f"Help: {SUPPORT_USER}",
+                    parse_mode="Markdown",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("\U0001f4b3 Buy Credits", callback_data="buy"),
+                         InlineKeyboardButton("\U0001f465 Refer & Earn", callback_data="refer")],
+                        [InlineKeyboardButton("\U0001f4de Support", url=f"https://t.me/{SUPPORT_USER.lstrip('@')}")]
+                    ])
+                ); return
 
             use_credit(uid)
             remaining = get_credits(uid)
@@ -919,10 +994,11 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
             if remaining <= 2:
                 reply += f"\n\n_(\u26a0\ufe0f Sirf {remaining} credits bache! /buy ya /refer karo!)_"
+
             await update.message.reply_text(reply)
             return
 
-        # GROUP
+        # ── GROUP ────────────────────────────────────
         if chat.type in ["group", "supergroup"]:
             register_group(chat.id)
             grp = get_group(chat.id)
@@ -937,7 +1013,7 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
             promo = increment_msg(chat.id)
             if promo:
-                await update.message.reply_text(f"\ud83d\udce2 {promo}"); return
+                await update.message.reply_text(f"\U0001f4e2 {promo}"); return
 
             if is_mentioned or is_reply:
                 txt = update.message.text.replace(f"@{bot_uname}", "").strip() if bot_uname else update.message.text
@@ -949,13 +1025,18 @@ async def handle_message(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"handle_message error: {e}")
 
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 #                    MAIN
-# \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+# ═══════════════════════════════════════════════
 def main():
     init_db()
-    logger.info("\ud83e\udd16 Shekha Bot starting...")
+    logger.info("\U0001f916 Shekha Bot starting...")
     app = Application.builder().token(BOT_TOKEN).build()
+
+    async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+        logger.error(f"Exception while handling update: {context.error}", exc_info=context.error)
+
+    app.add_error_handler(error_handler)
 
     app.add_handler(CommandHandler("start",       start))
     app.add_handler(CommandHandler("credits",     credits_cmd))
@@ -975,14 +1056,10 @@ def main():
     app.add_handler(CommandHandler("broadcast",   broadcast_cmd))
     app.add_handler(CommandHandler("forward",     forward_cmd))
     app.add_handler(CommandHandler("stats",       stats_cmd))
-    async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-        logger.error(f"Exception while handling update: {context.error}", exc_info=context.error)
-
-    app.add_error_handler(error_handler)
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    logger.info("🤖 Shekha Bot is running...")
+    logger.info("\U0001f916 Shekha Bot is running!")
     app.run_polling()
 
 if __name__ == "__main__":
