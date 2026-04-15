@@ -41,9 +41,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📅 Don't forget your *daily bonus* every 24 hours!"
         )
     else:
+        # Always re-fetch for accurate balance
+        fresh = db.get_user(user.id)
         welcome_text = (
             f"👋 *Welcome back, {user.first_name}!*\n\n"
-            f"💰 *Your Balance:* `{profile['coins']} coins`\n"
+            f"💰 *Your Balance:* `{fresh['coins']} coins`\n"
             f"🏆 *Rank:* `#{db.get_rank(user.id)}`\n\n"
             f"Ready to play?"
         )
@@ -222,7 +224,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data.startswith("game_"):
         game_name = data.split("_", 1)[1]
         context.user_data["current_game"] = game_name
-        game_info = _get_game_info(game_name)
+        # Re-fetch fresh balance for game info screen
+        profile = db.get_user(user.id)
+        game_info = _get_game_info(game_name, profile["coins"] if profile else 0)
         await query.edit_message_text(
             game_info,
             parse_mode="Markdown",
@@ -252,7 +256,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         amount = context.user_data.get("bet_amount", 50)
         await DiceGame.play(query, context, user, db, amount, choice)
 
-    # ── NUMBER GUESS (via Lucky Spin) ──
+    # ── LUCKY SPIN ──
     elif data.startswith("spin_"):
         amount = context.user_data.get("bet_amount", 50)
         await LuckySpinGame.play(query, context, user, db, amount)
@@ -262,46 +266,54 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # HELPERS
 # ─────────────────────────────────────────────
 
-def _get_game_info(game_name: str) -> str:
+def _get_game_info(game_name: str, balance: int = 0) -> str:
     infos = {
         "dice": (
-            "🎲 *DICE ROLL*\n\n"
-            "Guess the dice number (1–6)!\n"
-            "🎯 Win = *5x* your bet\n"
-            "❌ Wrong = lose your bet\n\n"
-            "Select your bet amount:"
+            f"🎲 *DICE ROLL*\n\n"
+            f"Guess the dice number (1–6)!\n"
+            f"🎯 Win = *5x* your bet\n"
+            f"❌ Wrong = lose your bet\n\n"
+            f"💰 Balance: `{balance} coins`\n\n"
+            f"Select your bet amount:"
         ),
         "coinflip": (
-            "🪙 *COIN FLIP*\n\n"
-            "Pick Heads or Tails!\n"
-            "🎯 Win = *1.9x* your bet\n"
-            "❌ Wrong = lose your bet\n\n"
-            "Select your bet amount:"
+            f"🪙 *COIN FLIP*\n\n"
+            f"Pick Heads or Tails!\n"
+            f"🎯 Win = *1.9x* your bet\n"
+            f"❌ Wrong = lose your bet\n\n"
+            f"💰 Balance: `{balance} coins`\n\n"
+            f"Select your bet amount:"
         ),
         "luckyspin": (
-            "🎰 *LUCKY SPIN*\n\n"
-            "Spin the slot wheel!\n"
-            "🍋🍋🍋 = *10x* | 🍒🍒🍒 = *5x*\n"
-            "⭐⭐⭐ = *3x* | 🎯🎯🎯 = *2x*\n"
-            "Mixed = 0x (lose)\n\n"
-            "Select your bet amount:"
+            f"🎰 *LUCKY SPIN*\n\n"
+            f"Spin the slot wheel!\n"
+            f"💎💎💎 = *20x* | 🍒🍒🍒 = *10x*\n"
+            f"⭐⭐⭐ = *5x* | 🎯🎯🎯 = *4x*\n"
+            f"Mixed = 0x (lose)\n\n"
+            f"💰 Balance: `{balance} coins`\n\n"
+            f"Select your bet amount:"
         ),
         "crash": (
-            "⚡ *FAST CRASH*\n\n"
-            "Watch the multiplier rise — cash out before it crashes!\n"
-            "🚀 Cash out early = safe win\n"
-            "💥 Wait too long = lose all!\n\n"
-            "Select your bet amount:"
+            f"⚡ *FAST CRASH*\n\n"
+            f"Multiplier rises +0.01 every second!\n"
+            f"🚀 Cash out in time = win big\n"
+            f"💥 Wait too long = lose all!\n\n"
+            f"💰 Balance: `{balance} coins`\n\n"
+            f"Select your bet amount:"
         ),
     }
-    return infos.get(game_name, "Select bet:")
+    return infos.get(game_name, f"💰 Balance: `{balance} coins`\n\nSelect bet:")
 
 
 async def _start_game(query, context, user, game_name, amount, db):
+    # Always fetch fresh balance before starting
     profile = db.get_user(user.id)
-    if not profile or profile["coins"] < amount:
+    current_coins = profile["coins"] if profile else 0
+
+    if not profile or current_coins < amount:
         await query.edit_message_text(
-            f"❌ *Not enough coins!*\n\nYou need `{amount}` coins but have `{profile['coins'] if profile else 0}`.\n\n"
+            f"❌ *Not enough coins!*\n\n"
+            f"You need `{amount}` coins but have `{current_coins}`.\n\n"
             f"Claim your daily bonus to get more! 🎁",
             parse_mode="Markdown",
             reply_markup=back_keyboard("games")
@@ -314,14 +326,18 @@ async def _start_game(query, context, user, game_name, amount, db):
     if game_name == "dice":
         from keyboards import dice_choice_keyboard
         await query.edit_message_text(
-            f"🎲 *Dice Roll* — Bet: `{amount} coins`\n\nPick a number (1–6):",
+            f"🎲 *Dice Roll* — Bet: `{amount} coins`\n"
+            f"💰 Balance: `{current_coins} coins`\n\n"
+            f"Pick a number (1–6):",
             parse_mode="Markdown",
             reply_markup=dice_choice_keyboard()
         )
     elif game_name == "coinflip":
         from keyboards import coinflip_choice_keyboard
         await query.edit_message_text(
-            f"🪙 *Coin Flip* — Bet: `{amount} coins`\n\nPick Heads or Tails:",
+            f"🪙 *Coin Flip* — Bet: `{amount} coins`\n"
+            f"💰 Balance: `{current_coins} coins`\n\n"
+            f"Pick Heads or Tails:",
             parse_mode="Markdown",
             reply_markup=coinflip_choice_keyboard()
         )

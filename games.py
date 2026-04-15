@@ -9,7 +9,7 @@ from keyboards import games_keyboard, back_keyboard
 # ──────────────────────────────────────────────
 
 class DiceGame:
-    PAYOUT_MULTIPLIER = 5  # 5x if correct
+    PAYOUT_MULTIPLIER = 5
 
     @staticmethod
     async def play(query, context, user, db, amount: int, choice: int):
@@ -23,7 +23,6 @@ class DiceGame:
 
         roll = random.randint(1, 6)
         dice_faces = {1: "1️⃣", 2: "2️⃣", 3: "3️⃣", 4: "4️⃣", 5: "5️⃣", 6: "6️⃣"}
-
         won = (roll == choice)
 
         if won:
@@ -53,7 +52,6 @@ class DiceGame:
             [InlineKeyboardButton("🎮 All Games", callback_data="games")],
             [InlineKeyboardButton("🏠 Menu", callback_data="main_menu")]
         ])
-
         await query.edit_message_text(text, parse_mode="Markdown", reply_markup=kb)
 
 
@@ -109,7 +107,6 @@ class CoinFlipGame:
             [InlineKeyboardButton("🎮 All Games", callback_data="games")],
             [InlineKeyboardButton("🏠 Menu", callback_data="main_menu")]
         ])
-
         await query.edit_message_text(text, parse_mode="Markdown", reply_markup=kb)
 
 
@@ -142,7 +139,6 @@ class LuckySpinGame:
             )
             return
 
-        # Animated spinning message
         await query.edit_message_text(
             f"🎰 *SPINNING...*\n\n"
             f"[ 🔄 | 🔄 | 🔄 ]\n\n"
@@ -152,7 +148,6 @@ class LuckySpinGame:
 
         await asyncio.sleep(1.2)
 
-        # Spin with weighted probabilities (jackpot is rare)
         weights = [30, 25, 20, 15, 10, 5, 5, 5, 5, 3, 2, 1]
         s1 = random.choices(SLOT_SYMBOLS, weights=weights[:len(SLOT_SYMBOLS)], k=1)[0]
         s2 = random.choices(SLOT_SYMBOLS, weights=weights[:len(SLOT_SYMBOLS)], k=1)[0]
@@ -190,21 +185,19 @@ class LuckySpinGame:
             [InlineKeyboardButton("🎮 All Games", callback_data="games")],
             [InlineKeyboardButton("🏠 Menu", callback_data="main_menu")]
         ])
-
         await query.edit_message_text(text, parse_mode="Markdown", reply_markup=kb)
 
 
 # ──────────────────────────────────────────────
-# ⚡ FAST CRASH
+# ⚡ CRASH GAME — Live multiplier ticks +0.01/sec
 # ──────────────────────────────────────────────
 
 class CrashGame:
     @staticmethod
     def _generate_crash_point() -> float:
-        """Generate crash point with house edge. Most crash under 2x."""
         r = random.random()
         if r < 0.40:
-            return round(random.uniform(1.0, 1.5), 2)
+            return round(random.uniform(1.05, 1.5), 2)
         elif r < 0.65:
             return round(random.uniform(1.5, 2.5), 2)
         elif r < 0.82:
@@ -217,11 +210,21 @@ class CrashGame:
             return round(random.uniform(50.0, 200.0), 2)
 
     @staticmethod
+    def _bar(multiplier: float, crash_point: float) -> str:
+        """Visual progress bar showing how close to crash."""
+        progress = min((multiplier - 1.0) / (crash_point - 1.0), 1.0)
+        filled = int(progress * 10)
+        return "🟩" * filled + "⬜" * (10 - filled)
+
+    @staticmethod
     async def start(query, context, user, db, amount: int):
         profile = db.get_user(user.id)
         if not profile or profile["coins"] < amount:
             await query.edit_message_text(
-                "❌ Not enough coins!",
+                f"❌ *Not enough coins!*\n\n"
+                f"You need `{amount}` coins but have `{profile['coins'] if profile else 0}`.\n\n"
+                f"Claim your daily bonus to get more! 🎁",
+                parse_mode="Markdown",
                 reply_markup=back_keyboard("games")
             )
             return
@@ -230,9 +233,13 @@ class CrashGame:
         context.user_data["crash_point"] = crash_point
         context.user_data["crash_bet"] = amount
         context.user_data["crashed"] = False
+        context.user_data["crash_multiplier"] = 1.00
 
         # Deduct bet immediately
         db.update_coins(user.id, -amount)
+        # Fetch fresh balance after deduction
+        fresh_profile = db.get_user(user.id)
+        balance_after = fresh_profile["coins"] if fresh_profile else 0
 
         cashout_kb = InlineKeyboardMarkup([
             [InlineKeyboardButton("💸 CASH OUT NOW!", callback_data="crash_cashout")],
@@ -240,49 +247,89 @@ class CrashGame:
 
         await query.edit_message_text(
             f"⚡ *FAST CRASH*\n\n"
-            f"Bet: `{amount}` coins locked in!\n\n"
+            f"Bet: `{amount}` coins locked in!\n"
+            f"💳 Balance: `{balance_after}` coins\n\n"
             f"🚀 *Multiplier rising...*\n"
-            f"Current: `1.00x`\n\n"
-            f"⚠️ Cash out before it crashes!\n"
-            f"The longer you wait, the more you win — or lose everything!",
+            f"Current: `1.00x`\n"
+            f"{CrashGame._bar(1.00, crash_point)}\n\n"
+            f"⚠️ Cash out before it crashes!",
             parse_mode="Markdown",
             reply_markup=cashout_kb
         )
 
-        # Schedule crash after random delay
+        # Start live tick task
         asyncio.create_task(
-            CrashGame._auto_crash(query, context, user, db, amount, crash_point)
+            CrashGame._live_tick(query, context, user, db, amount, crash_point, cashout_kb)
         )
 
     @staticmethod
-    async def _auto_crash(query, context, user, db, amount, crash_point):
-        """Auto-crash the game after a delay based on crash point."""
-        # Delay scales with crash point (higher = more time to cash out)
-        delay = min(crash_point * 0.8, 8.0)
-        await asyncio.sleep(delay)
+    async def _live_tick(query, context, user, db, amount, crash_point, cashout_kb):
+        """
+        Ticks multiplier up by +0.01 every second and updates the message.
+        Crashes when multiplier reaches crash_point.
+        """
+        multiplier = 1.00
+        step = 0.01
+        tick_interval = 1.0  # seconds per tick
 
-        if context.user_data.get("crashed"):
-            return  # Already cashed out
+        # Fetch balance once (bet already deducted)
+        fresh = db.get_user(user.id)
+        balance_after = fresh["coins"] if fresh else 0
 
-        context.user_data["crashed"] = True
+        while True:
+            await asyncio.sleep(tick_interval)
 
-        kb = InlineKeyboardMarkup([
-            [InlineKeyboardButton("⚡ Play Again", callback_data="game_crash")],
-            [InlineKeyboardButton("🎮 All Games", callback_data="games")],
-        ])
+            # Stop if user already cashed out
+            if context.user_data.get("crashed"):
+                return
 
-        try:
-            await query.edit_message_text(
-                f"⚡ *CRASH RESULT*\n\n"
-                f"💥 *CRASHED AT {crash_point}x!*\n\n"
-                f"❌ You were too slow!\n"
-                f"Lost: `{amount}` coins\n\n"
-                f"Try to cash out faster next time!",
-                parse_mode="Markdown",
-                reply_markup=kb
-            )
-        except Exception:
-            pass  # Message may have been edited already
+            multiplier = round(multiplier + step, 2)
+            context.user_data["crash_multiplier"] = multiplier
+
+            if multiplier >= crash_point:
+                # AUTO CRASH
+                if context.user_data.get("crashed"):
+                    return
+                context.user_data["crashed"] = True
+
+                kb = InlineKeyboardMarkup([
+                    [InlineKeyboardButton("⚡ Play Again", callback_data="game_crash")],
+                    [InlineKeyboardButton("🎮 All Games", callback_data="games")],
+                ])
+
+                try:
+                    await query.edit_message_text(
+                        f"⚡ *FAST CRASH*\n\n"
+                        f"💥 *CRASHED AT {crash_point}x!*\n"
+                        f"{CrashGame._bar(crash_point, crash_point)}\n\n"
+                        f"❌ You were too slow!\n"
+                        f"Lost: `{amount}` coins\n\n"
+                        f"Try to cash out faster next time! 🎯",
+                        parse_mode="Markdown",
+                        reply_markup=kb
+                    )
+                except Exception:
+                    pass
+                return
+
+            # Update message with current multiplier
+            potential_win = int(amount * multiplier)
+            try:
+                await query.edit_message_text(
+                    f"⚡ *FAST CRASH*\n\n"
+                    f"Bet: `{amount}` coins locked in!\n"
+                    f"💳 Balance: `{balance_after}` coins\n\n"
+                    f"🚀 *Multiplier rising...*\n"
+                    f"Current: `{multiplier:.2f}x`\n"
+                    f"{CrashGame._bar(multiplier, crash_point)}\n\n"
+                    f"💰 If cashed out now: `{potential_win}` coins\n"
+                    f"⚠️ Cash out before it crashes!",
+                    parse_mode="Markdown",
+                    reply_markup=cashout_kb
+                )
+            except Exception:
+                # Message edit failed (Telegram rate limit) — skip this tick
+                pass
 
     @staticmethod
     async def cashout(query, context, user, db):
@@ -291,20 +338,26 @@ class CrashGame:
             return
 
         context.user_data["crashed"] = True
+
         crash_point = context.user_data.get("crash_point", 1.5)
         amount = context.user_data.get("crash_bet", 50)
+        # Use the live multiplier at time of cashout
+        cashout_mult = round(context.user_data.get("crash_multiplier", 1.00), 2)
 
-        # Random cashout multiplier (between 1.0 and crash_point)
-        cashout_mult = round(random.uniform(1.1, crash_point), 2)
+        # Must be at least 1.01 to count as a win
+        if cashout_mult < 1.01:
+            cashout_mult = 1.01
+
         payout = int(amount * cashout_mult)
         net = payout - amount
 
         # Add winnings back (bet was already deducted)
         new_bal = db.update_coins(user.id, payout)
 
-        # Record in history
-        db.record_game(user.id, "crash", amount,
-                       f"cashout@{cashout_mult}x (crash@{crash_point}x)", payout)
+        db.record_game(
+            user.id, "crash", amount,
+            f"cashout@{cashout_mult}x (crash@{crash_point}x)", payout
+        )
 
         kb = InlineKeyboardMarkup([
             [InlineKeyboardButton("⚡ Play Again", callback_data="game_crash")],
@@ -315,7 +368,7 @@ class CrashGame:
         await query.edit_message_text(
             f"⚡ *CRASH RESULT*\n\n"
             f"✅ *Cashed out at {cashout_mult}x!*\n"
-            f"🚨 Crashed at: `{crash_point}x`\n\n"
+            f"🚨 Would've crashed at: `{crash_point}x`\n\n"
             f"💰 +`{net}` coins profit!\n"
             f"💳 Balance: `{new_bal}` coins",
             parse_mode="Markdown",
